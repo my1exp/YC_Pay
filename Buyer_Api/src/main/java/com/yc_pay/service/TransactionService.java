@@ -21,12 +21,12 @@ public class TransactionService {
 
         Transaction transaction = new Transaction();
         transaction.setTransactionId("123");
-        transaction.setHash(transactionRequest.getHash());
+        transaction.setHash(hash);
         transaction.setWalletFrom(transactionRequest.getWalletFrom());
         transaction.setWalletTo(transactionRequest.getWalletTo());
         transaction.setCurrency(transactionRequest.getCurrency());
         transaction.setAmount(transactionRequest.getAmount());
-        transaction.setNetwork(transactionRequest.getNetwork());
+        transaction.setNetwork(network);
         transaction.setCreatedAt(transactionRequest.getCreatedAt());
         transaction.setCategory("category");
         transaction.setStatus("status");

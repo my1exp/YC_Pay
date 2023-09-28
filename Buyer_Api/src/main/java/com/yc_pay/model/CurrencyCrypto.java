@@ -3,7 +3,8 @@ package com.yc_pay.model;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
-import java.util.List;
+import java.util.ArrayList;
+
 
 @Introspected
 @SerdeImport
@@ -14,6 +15,6 @@ import java.util.List;
 @Builder
 public class CurrencyCrypto {
     private String name;
-    private List<Network> networkList;
+    private ArrayList<Network> networkList;
 
 }

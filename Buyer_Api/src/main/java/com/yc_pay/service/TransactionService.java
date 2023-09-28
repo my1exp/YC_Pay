@@ -8,8 +8,8 @@ import jakarta.inject.Singleton;
 public class TransactionService {
     public Transaction getTransaction(String hash, String network){
         //ToDo должен делать запрос в сервис транзакций и забирать оттуда данные по id транзакции
-        return new Transaction("transaction_id", "hash", "wallet_from",
-                "wallet_to", "currency", 10.6F,"network",
+        return new Transaction("transaction_id", hash, "wallet_from",
+                "wallet_to", "currency", 10.6F,network,
                 "created_at", "category", "status");
     }
 

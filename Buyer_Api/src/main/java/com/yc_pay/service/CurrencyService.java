@@ -10,6 +10,7 @@ import java.util.List;
 @Singleton
 public class CurrencyService {
 
+
     public List<CurrencyCrypto> getAllCurrencies()
     {
         //ToDo по запросу должен ходить в базу и просматривать названия и сети криптовалют есть в ней
@@ -23,6 +24,8 @@ public class CurrencyService {
         currencyCrypto.setNetworkList(networkList);
         List<CurrencyCrypto> currenciesList = new ArrayList<>();
         currenciesList.add(currencyCrypto);
+        String a = DatabaseService.getCurrenciesCrypto();
+        System.out.println(a);
 
         return currenciesList;
     }

@@ -22,19 +22,21 @@ public class TransactionController {
     )
     public HttpResponse<Transaction> getTransaction(@PathVariable String hash,
                                                     @PathVariable String network){
-        //ToDo try
-        return HttpResponse.ok(transactionService.getTransaction(hash, network));
-        //Todo catch
-        //return HttpResponse.badRequest()
+        try {
+            return HttpResponse.ok(transactionService.getTransaction(hash, network));
+        }catch (Exception e){
+            return HttpResponse.badRequest();
+        }
     }
 
     @Put(uri = "/transaction/{hash}&{network}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Transaction> createNewTransaction(@PathVariable String hash, @PathVariable String network,
                                                           @Body TransactionRequest transactionRequest)
     {
-        //ToDo try
-        return HttpResponse.ok(transactionService.createTransaction(hash, network, transactionRequest));
-        //Todo catch
-        //return HttpResponse.badRequest()
+        try {
+            return HttpResponse.ok(transactionService.createTransaction(hash, network, transactionRequest));
+        }catch (Exception e){
+            return HttpResponse.badRequest();
+        }
     }
 }

@@ -23,9 +23,10 @@ public class ExchangeRequestController {
     public HttpResponse<ExchangeResponse> getExchangeRequest(@PathVariable String currencyCrypto,
                                                              float amountCrypto,
                                                              String currencyFiat){
-        //ToDo try
-        return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currencyCrypto, amountCrypto, currencyFiat));
-        //Todo catch
-        //return HttpResponse.badRequest()
+        try {
+            return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currencyCrypto, amountCrypto, currencyFiat));
+        }catch (Exception e){
+            return HttpResponse.badRequest();
+        }
     }
 }

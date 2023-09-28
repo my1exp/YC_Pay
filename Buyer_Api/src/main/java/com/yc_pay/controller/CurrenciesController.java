@@ -21,9 +21,10 @@ public class CurrenciesController {
     @Get(uri = "/Supported_currencies"
             , produces = MediaType.APPLICATION_JSON)
     public HttpResponse<List<CurrencyCrypto>> getAllCurrencies (){
-        //ToDo try
-        return HttpResponse.ok(currencyService.getAllCurrencies());
-        //Todo catch
-        //return HttpResponse.notFound()
+        try {
+            return HttpResponse.ok(currencyService.getAllCurrencies());
+        }catch (Exception e){
+            return HttpResponse.notFound();
+        }
     }
 }

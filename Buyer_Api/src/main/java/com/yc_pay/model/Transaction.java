@@ -13,8 +13,8 @@ import lombok.*;
 @Builder
 @ToString
 public class Transaction {
-    private String transactionId; // кто формирует id транзакции? Если каждый подключенный "магазин" будет формировать, то как добиться уникальности?
-    private String hash; // кто заполняет и проверяет на корректность?
+    private String transactionId; // кто формирует id транзакции? Если каждый подключенный "магазин" будет формировать
+    private String merchantId;
     private String walletFrom;
     private String walletTo;
     private String currency;

@@ -17,24 +17,24 @@ public class TransactionController {
     }
 
 
-    @Get(uri = "/transaction/{hash}&{network}"
+    @Get(uri = "/transaction/{transactionId}&{merchantId}"
             , produces = MediaType.APPLICATION_JSON
     )
-    public HttpResponse<Transaction> getTransaction(@PathVariable String hash,
-                                                    @PathVariable String network){
+    public HttpResponse<Transaction> getTransaction(@PathVariable String transactionId,
+                                                    @PathVariable String merchantId){
         try {
-            return HttpResponse.ok(transactionService.getTransaction(hash, network));
+            return HttpResponse.ok(transactionService.getTransaction(transactionId, merchantId));
         }catch (Exception e){
             return HttpResponse.badRequest();
         }
     }
 
-    @Put(uri = "/transaction/{hash}&{network}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
-    public HttpResponse<Transaction> createNewTransaction(@PathVariable String hash, @PathVariable String network,
+    @Put(uri = "/transaction/{transactionId}&{merchantId}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+    public HttpResponse<Transaction> createNewTransaction(@PathVariable String transactionId, @PathVariable String merchantId,
                                                           @Body TransactionRequest transactionRequest)
     {
         try {
-            return HttpResponse.ok(transactionService.createTransaction(hash, network, transactionRequest));
+            return HttpResponse.ok(transactionService.createTransaction(transactionId, merchantId, transactionRequest));
         }catch (Exception e){
             return HttpResponse.badRequest();
         }

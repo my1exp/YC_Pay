@@ -21,7 +21,7 @@ public class TransactionController {
     @Get(uri = "/transaction/{transactionId}&{merchantId}"
             , produces = MediaType.APPLICATION_JSON
     )
-    public HttpResponse<Transaction> getTransaction(@PathVariable String transactionId,
+    public HttpResponse<TransactionResponse> getTransaction(@PathVariable String transactionId,
                                                     @PathVariable String merchantId){
         try {
             return HttpResponse.ok(transactionService.getTransaction(transactionId, merchantId));

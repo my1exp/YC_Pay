@@ -14,15 +14,14 @@ public class TransactionService {
         this.transactionClient = transactionClient;
     }
 
-    public Transaction getTransaction(String transactionId, String merchantId){
-        return new Transaction(transactionId, merchantId, "wallet_from",
-                "wallet_to", "currency", 10.6F, "network",
-                "created_at", "category", "status");
+    public TransactionResponse getTransaction(String transactionId, String merchantId){
+        System.out.println("Get Transaction");
+        return transactionClient.getBuyerTransaction(transactionId, merchantId);
     }
 
     public TransactionResponse postBuyerTransaction(String transactionId, String merchantId, TransactionRequest transactionRequest){
-        System.out.println("Отправка");
-        return transactionClient.postBuyerTransactions(transactionId, merchantId, transactionRequest);
+        System.out.println("Post Transaction");
+        return transactionClient.postBuyerTransaction(transactionId, merchantId, transactionRequest);
 //        return new Transaction(transactionId, merchantId, "wallet_from",
 //                "wallet_to", "currency", 10.6F, "network",
 //                "created_at", "category", "status");

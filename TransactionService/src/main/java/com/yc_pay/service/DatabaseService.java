@@ -4,12 +4,11 @@ import com.yc_pay.model.Transaction;
 import com.yc_pay.model.TransactionResponse;
 import jakarta.inject.Singleton;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,5 +51,37 @@ public class DatabaseService {
             arrayList.add("Error");
         }
         return arrayList;
+    }
+
+    public Transaction getTransactionFromUser(String transactionId, String merchantId){
+        Transaction transaction = new Transaction();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
+            Result<Record> result =
+                    create
+                    .select()
+                    .from(TRANSACTION)
+                    .where(TRANSACTION.TRANSACTIONID.eq(transactionId),
+                            TRANSACTION.MERCHANTID.eq(merchantId))
+                    .fetch();
+            conn.close();
+
+            for (Record r : result) {
+                transaction.setTransactionId(r.getValue(TRANSACTION.TRANSACTIONID));
+                transaction.setMerchantId(r.getValue(TRANSACTION.MERCHANTID));
+                transaction.setWalletFrom(r.getValue(TRANSACTION.WALLETFROM));
+                transaction.setWalletTo(r.getValue(TRANSACTION.WALLETTO));
+                transaction.setCurrency(r.getValue(TRANSACTION.CURRENCY));
+                transaction.setAmount(r.getValue(TRANSACTION.AMOUNT));
+                transaction.setNetwork(r.getValue(TRANSACTION.NETWORK));
+                transaction.setCreatedAt(r.getValue(TRANSACTION.CREATEDATE));
+                transaction.setCategory(r.getValue(TRANSACTION.CATEGORY));
+                transaction.setStatus(r.getValue(TRANSACTION.STATUS));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return transaction;
     }
 }

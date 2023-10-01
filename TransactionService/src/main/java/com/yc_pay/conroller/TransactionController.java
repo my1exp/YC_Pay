@@ -5,10 +5,7 @@ import com.yc_pay.model.TransactionResponse;
 import com.yc_pay.service.TransactionService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.PathVariable;
-import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.*;
 
 
 @Controller("/transaction")
@@ -21,11 +18,22 @@ public class TransactionController {
     }
 
     @Put(uri = "/{transactionId}&{merchantId}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
-    public HttpResponse<TransactionResponse> createNewTransaction(@PathVariable String transactionId, @PathVariable String merchantId,
-                                                                  @Body TransactionRequest transactionRequest)
+    public HttpResponse<TransactionResponse> postUserTransaction(@PathVariable String transactionId, @PathVariable String merchantId,
+                                                                @Body TransactionRequest transactionRequest)
     {
-        Object createTransactionFromUser = transactionService.createTransactionFromUser(transactionId,
+        Object createTransactionFromUser = transactionService.postUserTransaction(transactionId,
                 merchantId, transactionRequest);
             return HttpResponse.created((TransactionResponse) createTransactionFromUser);
+    }
+
+    @Get(uri = "/{transactionId}&{merchantId}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+    public HttpResponse<TransactionResponse> getUserTransaction(@PathVariable String transactionId, @PathVariable String merchantId)
+    {
+        try{
+            return HttpResponse.ok(transactionService.getUserTransaction(transactionId, merchantId));
+        }catch (Exception e){
+            return HttpResponse.badRequest();
+        }
+
     }
 }

@@ -4,6 +4,7 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
+
 @Introspected
 @SerdeImport
 @Getter
@@ -12,15 +13,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class Transaction {
-    private String transactionId;
-    private String merchantId;
-    private String walletFrom;
-    private String walletTo;
+public class IntentRequest {
+    private String request_id;
     private String currency;
-    private float amount;
     private String network;
-    private String createdAt;
-    private String category;
-    private String status;
+    private float amount;
+    private String merchant_id;
 }

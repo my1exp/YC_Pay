@@ -5,6 +5,7 @@ package com.yc_pay.model.dbModels.generated;
 
 
 import com.yc_pay.model.dbModels.generated.tables.Currency;
+import com.yc_pay.model.dbModels.generated.tables.Intent;
 
 
 /**
@@ -17,4 +18,9 @@ public class Tables {
      * The table <code>public.currency</code>.
      */
     public static final Currency CURRENCY = Currency.CURRENCY;
+
+    /**
+     * The table <code>public.intent</code>.
+     */
+    public static final Intent INTENT = Intent.INTENT;
 }

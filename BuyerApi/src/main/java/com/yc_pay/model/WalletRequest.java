@@ -4,7 +4,6 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
-
 @Introspected
 @SerdeImport
 @Getter
@@ -13,11 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class TransactionRequest {
-    private String walletFrom;
-    private String walletTo;
-    private String currency;
-    private float amount;
+public class WalletRequest {
     private String network;
-    private String createdAt;
+    private String currency;
 }

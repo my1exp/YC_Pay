@@ -17,14 +17,14 @@ public class ExchangeRequestController {
     }
 
 
-    @Get(uri = "/amountToPay/currency_crypto={currencyCrypto}&amount_crypto={amountCrypto}&currency_fiat={currencyFiat}"
+    @Get(uri = "/amountToPay/"
             , produces = MediaType.APPLICATION_JSON
     )
-    public HttpResponse<ExchangeResponse> getExchangeRequest(@PathVariable String currencyCrypto,
-                                                             float amountCrypto,
-                                                             String currencyFiat){
+    public HttpResponse<ExchangeResponse> getExchangeRequest(@Header String currency_crypto,
+                                                             @Header float amount_crypto,
+                                                             @Header String currency_fiat){
         try {
-            return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currencyCrypto, amountCrypto, currencyFiat));
+            return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currency_crypto, amount_crypto, currency_fiat));
         }catch (Exception e){
             return HttpResponse.badRequest();
         }

@@ -1,25 +1,21 @@
-package com.yc_pay.client;
+package com.yc_pay.model;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
+@Introspected
 @SerdeImport
 @Getter
-@ToString
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TransactionResponse {
-    private String transactionId;
-    private String merchantId;
-    private String walletFrom;
-    private String walletTo;
+@ToString
+public class IntentResponse {
+    private String wallet_to;
     private String currency;
-    private float amount;
     private String network;
-    private String createdAt;
-    private String category;
+    private float amount;
     private String status;
 }

@@ -1,17 +1,20 @@
 package com.yc_pay.service;
 
-import com.yc_pay.model.CurrencyCrypto;
-import com.yc_pay.model.Network;
+import com.yc_pay.model.*;
 import com.yc_pay.model.dbModels.generated.Tables;
 import jakarta.inject.Singleton;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import org.jooq.Record;
+import static com.yc_pay.model.dbModels.generated.Tables.INTENT;
 
 
 @Singleton
@@ -46,5 +49,79 @@ public class DatabaseService {
             e.printStackTrace();
         }
         return currencyCryptoList;
+    }
+
+    public static void postBuyerIntent(String session_id, IntentRequest intentRequest){
+
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext postIntent = DSL.using(conn, SQLDialect.POSTGRES);
+            System.out.println("Connected to db");
+            postIntent
+                    .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
+                            INTENT.AMOUNT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
+                            INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS)
+                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency(),
+                            BigDecimal.valueOf(intentRequest.getAmount()),
+                            intentRequest.getNetwork(), intentRequest.getMerchant_id(),
+                            null, LocalDateTime.now(), "Payment", "Created")
+                    .execute();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static WalletRequest getCurrency(String sessionId, String requestId) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
+            Result<Record> result = get.select()
+                    .from(INTENT)
+                    .where(INTENT.REQUEST_ID.eq(requestId)
+                            , INTENT.SESSION_ID.eq(sessionId))
+                    .fetch();
+            conn.close();
+            WalletRequest walletRequest = new WalletRequest();
+            for (Record r : result) {
+                walletRequest = new WalletRequest(r.getValue(INTENT.NETWORK),
+                        r.getValue(INTENT.CURRENCY));
+            }
+            return walletRequest;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void updateIntent(String sessionId, String requestId, String wallet) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
+            upd.update(INTENT).set(INTENT.WALLET_TO, wallet)
+                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
+                    .execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static IntentResponse getIntent(String sessionId, String requestId) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
+            Result<Record> result = get.select()
+                    .from(INTENT)
+                    .where(INTENT.REQUEST_ID.eq(requestId)
+                            , INTENT.SESSION_ID.eq(sessionId))
+                    .fetch();
+            conn.close();
+            IntentResponse intentResponse = new IntentResponse();
+            for (Record r : result) {
+                intentResponse = new IntentResponse(r.getValue(INTENT.WALLET_TO),
+                        r.getValue(INTENT.CURRENCY), r.getValue(INTENT.NETWORK),
+                        r.getValue(INTENT.AMOUNT).floatValue(), r.getValue(INTENT.STATUS));
+            }
+            return intentResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

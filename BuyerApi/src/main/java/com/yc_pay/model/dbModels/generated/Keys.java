@@ -5,7 +5,9 @@ package com.yc_pay.model.dbModels.generated;
 
 
 import com.yc_pay.model.dbModels.generated.tables.Currency;
+import com.yc_pay.model.dbModels.generated.tables.Intent;
 import com.yc_pay.model.dbModels.generated.tables.records.CurrencyRecord;
+import com.yc_pay.model.dbModels.generated.tables.records.IntentRecord;
 
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
@@ -25,4 +27,5 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<CurrencyRecord> CURRENCY_PKEY = Internal.createUniqueKey(Currency.CURRENCY, DSL.name("currency_pkey"), new TableField[] { Currency.CURRENCY.ID }, true);
+    public static final UniqueKey<IntentRecord> INTENT_PKEY = Internal.createUniqueKey(Intent.INTENT, DSL.name("intent_pkey"), new TableField[] { Intent.INTENT.REQUEST_ID, Intent.INTENT.SESSION_ID }, true);
 }

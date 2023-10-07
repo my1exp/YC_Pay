@@ -5,6 +5,7 @@ package com.yc_pay.model.dbModels.generated;
 
 
 import com.yc_pay.model.dbModels.generated.tables.Currency;
+import com.yc_pay.model.dbModels.generated.tables.Intent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,11 @@ public class Public extends SchemaImpl {
     public final Currency CURRENCY = Currency.CURRENCY;
 
     /**
+     * The table <code>public.intent</code>.
+     */
+    public final Intent INTENT = Intent.INTENT;
+
+    /**
      * No further instances allowed
      */
     private Public() {
@@ -48,7 +54,8 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            Currency.CURRENCY
+            Currency.CURRENCY,
+            Intent.INTENT
         );
     }
 }

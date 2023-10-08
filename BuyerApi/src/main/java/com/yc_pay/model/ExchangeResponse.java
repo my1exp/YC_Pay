@@ -11,8 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ExchangeResponse {
-    private String currencyCrypto;
-    private double amountCrypto;
-    private String currencyFiat;
-    private double amountFiat;
+    private String currency_crypto;
+    private double amount_crypto;
+    private String currency_fiat;
+    private double amount_fiat;
 }

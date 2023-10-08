@@ -55,7 +55,6 @@ public class DatabaseService {
 
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext postIntent = DSL.using(conn, SQLDialect.POSTGRES);
-            System.out.println("Connected to db");
             postIntent
                     .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
                             INTENT.AMOUNT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,

@@ -1,4 +1,4 @@
-package com.yc_pay.client;
+package com.yc_pay.client.pricer;
 
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
@@ -10,6 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class WalletResponse {
-    private String wallet;
+public class PricerResponse {
+    private float amountCrypto;
 }

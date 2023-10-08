@@ -21,10 +21,10 @@ public class ExchangeRequestController {
             , produces = MediaType.APPLICATION_JSON
     )
     public HttpResponse<ExchangeResponse> getExchangeRequest(@Header String currency_crypto,
-                                                             @Header float amount_crypto,
+                                                             @Header float amount_fiat,
                                                              @Header String currency_fiat){
         try {
-            return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currency_crypto, amount_crypto, currency_fiat));
+            return HttpResponse.ok(exchangeRequestService.returnAmountFiat(currency_crypto, amount_fiat, currency_fiat));
         }catch (Exception e){
             return HttpResponse.badRequest();
         }

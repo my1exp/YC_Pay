@@ -3,8 +3,6 @@ package com.yc_pay.model;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
-import java.util.ArrayList;
-
 
 @Introspected
 @SerdeImport
@@ -13,8 +11,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CurrencyCrypto {
-    private String name;
-    private ArrayList<Network> networkList;
-
+@ToString
+public class PricerResponse {
+    private float amountCrypto;
 }

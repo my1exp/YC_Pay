@@ -40,7 +40,8 @@ public class IntentService {
         float currentChangeRate = pricerClient.getPriceToBuyer(intentRequest.getCurrency_crypto(),
                 intentRequest.getAmount_fiat(), intentRequest.getCurrency_fiat()).getAmountCrypto();
         float difference = ((intentRequest.getAmount_crypto() - currentChangeRate) / intentRequest.getAmount_crypto()) * 100;
-        if ((currentChangeRate <= intentRequest.getAmount_crypto()) || difference >= -0.1) { //Проверка на корректность переданной стоимости
+        System.out.println(difference);
+        if ((currentChangeRate <= intentRequest.getAmount_crypto()) || difference >= -0.1) {//Проверка на корректность переданной стоимости
             DatabaseService.postBuyerIntent(session_id, intentRequest); // делаем запись о намерении
 
             CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(intentRequest.getNetwork(),

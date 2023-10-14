@@ -59,8 +59,8 @@ public class DatabaseService {
                     .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
                             INTENT.AMOUNT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
                             INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS)
-                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency(),
-                            BigDecimal.valueOf(intentRequest.getAmount()),
+                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency_crypto(),
+                            BigDecimal.valueOf(intentRequest.getAmount_fiat()),
                             intentRequest.getNetwork(), intentRequest.getMerchant_id(),
                             null, LocalDateTime.now(), "Payment", "Created")
                     .execute();
@@ -70,7 +70,7 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequest getCurrency(String sessionId, String requestId) {
+    public static WalletRequestDB getNetworkAndCurrency(String sessionId, String requestId) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()
@@ -79,10 +79,10 @@ public class DatabaseService {
                             , INTENT.SESSION_ID.eq(sessionId))
                     .fetch();
             conn.close();
-            WalletRequest walletRequest = new WalletRequest();
+            WalletRequestDB walletRequest = new WalletRequestDB();
             for (Record r : result) {
-                walletRequest = new WalletRequest(r.getValue(INTENT.NETWORK),
-                        r.getValue(INTENT.CURRENCY));
+                walletRequest = new WalletRequestDB(r.getValue(INTENT.NETWORK),
+                        r.getValue(INTENT.CURRENCY), r.getValue(INTENT.WALLET_TO));
             }
             return walletRequest;
         } catch (Exception e) {
@@ -91,10 +91,21 @@ public class DatabaseService {
         }
     }
 
-    public static void updateIntent(String sessionId, String requestId, String wallet) {
+    public static void updateIntentWallet(String sessionId, String requestId, String wallet) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
             upd.update(INTENT).set(INTENT.WALLET_TO, wallet)
+                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
+                    .execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateIntentStatus(String sessionId, String requestId, String status) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
+            upd.update(INTENT).set(INTENT.STATUS, status)
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
                     .execute();
         } catch (Exception e) {

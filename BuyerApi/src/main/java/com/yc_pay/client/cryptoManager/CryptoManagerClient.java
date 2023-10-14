@@ -6,15 +6,11 @@ import io.micronaut.http.client.annotation.Client;
 @Client("http://localhost:8082")
 public interface CryptoManagerClient {
 
-
-//    @Put(value = "/transaction/{transactionId}&{merchantId}"
-//    WalletResponse postBuyerTransaction(String transactionId,
-//                                        String merchantId,
-//                                        IntentRequest intentRequest);
-
     @Get(value = "/wallet")
-    CryptoManagerResponse getWalletToBuyer(@Header String network,
-                                           @Header String currency);
+    CryptoManagerWalletResponse getWalletToBuyer(@Header String network,
+                                                 @Header String currency);
 
-
+    @Get(value = "/status")
+    CryptoManagerStatusResponse getStatusToBuyer(@Header String network,
+                                                 @Header String wallet);
 }

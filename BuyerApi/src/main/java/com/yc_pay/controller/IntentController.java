@@ -35,7 +35,7 @@ public class IntentController {
             intentService.postBuyerIntent(session_id, intentRequest);
             return HttpResponse.ok();
         }catch (Exception e){
-            return HttpResponse.badRequest();
+            return HttpResponse.accepted();
         }
     }
 }

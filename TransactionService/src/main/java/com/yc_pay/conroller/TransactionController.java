@@ -17,7 +17,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @Put(uri = "/{transactionId}&{merchantId}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+    @Put(uri = "/SendToColdWallet", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public HttpResponse<TransactionResponse> postUserTransaction(@PathVariable String transactionId, @PathVariable String merchantId,
                                                                 @Body TransactionRequest transactionRequest)
     {

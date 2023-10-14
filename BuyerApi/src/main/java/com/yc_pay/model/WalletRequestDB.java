@@ -12,7 +12,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class WalletRequest {
+public class WalletRequestDB {
     private String network;
     private String currency;
+    private String wallet;
 }

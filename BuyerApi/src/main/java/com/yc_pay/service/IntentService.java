@@ -1,10 +1,11 @@
 package com.yc_pay.service;
 
 import com.yc_pay.client.cryptoManager.CryptoManagerClient;
-import com.yc_pay.client.cryptoManager.CryptoManagerResponse;
+import com.yc_pay.client.cryptoManager.CryptoManagerStatusResponse;
+import com.yc_pay.client.cryptoManager.CryptoManagerWalletResponse;
 import com.yc_pay.model.IntentRequest;
 import com.yc_pay.model.IntentResponse;
-import com.yc_pay.model.WalletRequest;
+import com.yc_pay.model.WalletRequestDB;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -18,14 +19,19 @@ public class IntentService {
 
 
     public IntentResponse getIntent(String sessionId, String requestId){
-        System.out.println("Get Transaction");
-        WalletRequest walletRequest = DatabaseService.getCurrency(sessionId, requestId);
-        if (walletRequest != null) {
-            CryptoManagerResponse cryptoManagerResponse = cryptoManagerClient.getWalletToBuyer(walletRequest.getNetwork(),
-                    walletRequest.getCurrency());
-            DatabaseService.updateIntent(sessionId, requestId, cryptoManagerResponse.getWallet());
+        WalletRequestDB walletRequestDB = DatabaseService.getCurrency(sessionId, requestId); //проверяем интент в базе
+        if (walletRequestDB != null) {
+            if (walletRequestDB.getWallet() != null){ // если он есть и заполнен кошелен - запрашиваем статус оплаты
+                CryptoManagerStatusResponse cryptoManagerStatusResponse = cryptoManagerClient.getStatusToBuyer(walletRequestDB.getNetwork(),
+                        walletRequestDB.getWallet());
+                DatabaseService.updateIntentStatus(sessionId, requestId, cryptoManagerStatusResponse.getStatus()); //обновляем статус
+            }else { // если он есть и НЕ заполнен кошелен - запрашиваем кошелек
+                CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(walletRequestDB.getNetwork(),
+                        walletRequestDB.getCurrency());
+                DatabaseService.updateIntentWallet(sessionId, requestId, cryptoManagerWalletResponse.getWallet()); //обновляем кошелек
+            }
             return DatabaseService.getIntent(sessionId,requestId);
-        }else{
+        }else{ // Если нет интента - возвращаем null
             return null;
         }
     }

@@ -10,6 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CryptoManagerResponse {
-    private String wallet;
+public class CryptoManagerStatusResponse {
+    private String status;
 }

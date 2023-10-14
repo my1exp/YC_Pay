@@ -4,4 +4,4 @@
 
 ## YC Pay UML sequence diagram
 
-![YC Pay UML sequence diagram](https://i.ibb.co/BfV1FF9/2023-10-14.png)
+![YC Pay UML sequence diagram](https://drive.google.com/file/d/1adpdco5DlP3Ksqs02ywj_WJ5mmRr1UDU/view)

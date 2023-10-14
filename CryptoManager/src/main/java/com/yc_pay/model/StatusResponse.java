@@ -12,7 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class WalletRequest {
-    private String network;
-    private String currency;
+public class StatusResponse {
+    private String status;
 }

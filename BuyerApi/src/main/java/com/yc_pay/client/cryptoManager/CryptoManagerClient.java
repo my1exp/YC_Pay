@@ -13,6 +13,4 @@ public interface CryptoManagerClient {
     @Get(value = "/status")
     CryptoManagerStatusResponse getStatusToBuyer(@Header String network,
                                                  @Header String wallet);
-
-
 }

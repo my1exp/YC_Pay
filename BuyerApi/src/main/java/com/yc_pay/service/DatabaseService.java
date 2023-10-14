@@ -59,8 +59,8 @@ public class DatabaseService {
                     .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
                             INTENT.AMOUNT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
                             INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS)
-                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency(),
-                            BigDecimal.valueOf(intentRequest.getAmount()),
+                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency_crypto(),
+                            BigDecimal.valueOf(intentRequest.getAmount_fiat()),
                             intentRequest.getNetwork(), intentRequest.getMerchant_id(),
                             null, LocalDateTime.now(), "Payment", "Created")
                     .execute();
@@ -70,7 +70,7 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequestDB getCurrency(String sessionId, String requestId) {
+    public static WalletRequestDB getNetworkAndCurrency(String sessionId, String requestId) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()

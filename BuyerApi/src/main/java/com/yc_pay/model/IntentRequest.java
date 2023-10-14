@@ -15,8 +15,10 @@ import lombok.*;
 @ToString
 public class IntentRequest {
     private String request_id;
-    private String currency;
+    private String currency_crypto;
     private String network;
-    private float amount;
+    private float amount_crypto;
+    private float amount_fiat;
+    private String currency_fiat;
     private String merchant_id;
 }

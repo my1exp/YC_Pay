@@ -11,5 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CryptoManagerWalletResponse {
+    private int walletId;
     private String wallet;
 }

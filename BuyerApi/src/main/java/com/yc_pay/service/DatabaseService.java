@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import org.jooq.Record;
 import static com.yc_pay.model.dbModels.generated.Tables.INTENT;
+import static org.jooq.impl.DSL.row;
 
 
 @Singleton
@@ -91,10 +92,10 @@ public class DatabaseService {
         }
     }
 
-    public static void updateIntentWallet(String sessionId, String requestId, String wallet) {
+    public static void updateIntentWallet(String sessionId, String requestId, int id, String wallet) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
-            upd.update(INTENT).set(INTENT.WALLET_TO, wallet)
+            upd.update(INTENT).set(row(INTENT.WALLET_ID, INTENT.WALLET_TO), row(id, wallet))
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
                     .execute();
         } catch (Exception e) {

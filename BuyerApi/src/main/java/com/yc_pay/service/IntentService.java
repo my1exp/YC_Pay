@@ -47,7 +47,7 @@ public class IntentService {
             CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(intentRequest.getNetwork(),
                     intentRequest.getCurrency_crypto()); //создаем кошелек
             DatabaseService.updateIntentWallet(session_id, intentRequest.getRequest_id(),
-                    cryptoManagerWalletResponse.getWallet()); //обновляем кошелек в намерении
+                    cryptoManagerWalletResponse.getWalletId(), cryptoManagerWalletResponse.getWallet()); //обновляем кошелек в намерении
         }
     }
 }

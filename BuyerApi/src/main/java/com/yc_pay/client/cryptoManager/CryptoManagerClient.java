@@ -8,9 +8,9 @@ public interface CryptoManagerClient {
 
     @Get(value = "/wallet")
     CryptoManagerWalletResponse getWalletToBuyer(@Header String network,
-                                                 @Header String currency);
+                                                 @Header String currency,
+                                                 @Header float amountCrypto);
 
     @Get(value = "/status")
-    CryptoManagerStatusResponse getStatusToBuyer(@Header String network,
-                                                 @Header String wallet);
+    CryptoManagerStatusResponse getStatusToBuyer(@Header int walletId);
 }

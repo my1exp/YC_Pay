@@ -82,8 +82,8 @@ public class DatabaseService {
             conn.close();
             WalletRequestDB walletRequest = new WalletRequestDB();
             for (Record r : result) {
-                walletRequest = new WalletRequestDB(r.getValue(INTENT.NETWORK),
-                        r.getValue(INTENT.CURRENCY), r.getValue(INTENT.WALLET_TO));
+                walletRequest = new WalletRequestDB(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
+                        r.getValue(INTENT.WALLET_TO), r.getValue(INTENT.STATUS), r.getValue(INTENT.WALLET_ID));
             }
             return walletRequest;
         } catch (Exception e) {

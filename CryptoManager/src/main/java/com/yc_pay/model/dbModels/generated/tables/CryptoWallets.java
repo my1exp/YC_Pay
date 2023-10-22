@@ -8,17 +8,18 @@ import com.yc_pay.model.dbModels.generated.Keys;
 import com.yc_pay.model.dbModels.generated.Public;
 import com.yc_pay.model.dbModels.generated.tables.records.CryptoWalletsRecord;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function8;
+import org.jooq.Function9;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row8;
+import org.jooq.Row9;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -90,6 +91,11 @@ public class CryptoWallets extends TableImpl<CryptoWalletsRecord> {
      * The column <code>public.crypto_wallets.type</code>.
      */
     public final TableField<CryptoWalletsRecord, String> TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR(30), this, "");
+
+    /**
+     * The column <code>public.crypto_wallets.amount_crypto</code>.
+     */
+    public final TableField<CryptoWalletsRecord, BigDecimal> AMOUNT_CRYPTO = createField(DSL.name("amount_crypto"), SQLDataType.NUMERIC, this, "");
 
     private CryptoWallets(Name alias, Table<CryptoWalletsRecord> aliased) {
         this(alias, aliased, null);
@@ -179,18 +185,18 @@ public class CryptoWallets extends TableImpl<CryptoWalletsRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row8 type methods
+    // Row9 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row8<Integer, String, String, String, String, String, LocalDateTime, String> fieldsRow() {
-        return (Row8) super.fieldsRow();
+    public Row9<Integer, String, String, String, String, String, LocalDateTime, String, BigDecimal> fieldsRow() {
+        return (Row9) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function8<? super Integer, ? super String, ? super String, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function9<? super Integer, ? super String, ? super String, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super BigDecimal, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -198,7 +204,7 @@ public class CryptoWallets extends TableImpl<CryptoWalletsRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function8<? super Integer, ? super String, ? super String, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function9<? super Integer, ? super String, ? super String, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super BigDecimal, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

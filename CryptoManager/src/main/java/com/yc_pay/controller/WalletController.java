@@ -19,15 +19,15 @@ public class WalletController {
 
     @Get("/wallet")
     public HttpResponse<WalletResponse> getWalletToBuyer(@Header String network,
-                                                         @Header String currency)
+                                                         @Header String currency,
+                                                         @Header float amountCrypto)
     {
-        return HttpResponse.ok(walletService.getWalletToBuyer(network, currency));
+        return HttpResponse.ok(walletService.getWalletToBuyer(network, currency, amountCrypto));
     }
 
     @Get("/status")
-    public HttpResponse<StatusResponse> getStatusToBuyer(@Header String network,
-                                                         @Header String wallet)
+    public HttpResponse<StatusResponse> getStatusToBuyer(@Header int walletId)
     {
-        return HttpResponse.ok(walletService.getStatusToBuyer(network, wallet));
+        return HttpResponse.ok(walletService.getStatusToBuyer(walletId));
     }
 }

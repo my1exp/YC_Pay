@@ -4,6 +4,8 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Introspected
 @SerdeImport
 @Getter
@@ -12,10 +14,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class WalletRequestDB {
-    private String network;
-    private String currency;
-    private String wallet;
-    private String status;
-    private int walletId;
+public class WalletInfoDB {
+    private String address;
+    private String privateKey;
+    private BigDecimal amountCrypto;
 }

@@ -1,46 +1,49 @@
 package com.yc_pay.service;
 
 import com.yc_pay.model.StatusResponse;
+import com.yc_pay.model.WalletInfoDB;
 import com.yc_pay.model.WalletResponse;
 import jakarta.inject.Singleton;
 import org.xrpl.xrpl4j.crypto.keys.*;
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
+import org.xrpl.xrpl4j.model.transactions.XrpCurrencyAmount;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Singleton
 public class WalletService {
 
-    public WalletResponse getWalletToBuyer(String network, String currency) {
-        //1. Создавать кошельки из byte[16] и хранить его
-        //2. Делать отдельный Thread до момента оплаты и перевода
-        final byte[] out = new byte[16];
-        ThreadLocalRandom.current().nextBytes(out);                                     //генерация рандомного byte[16]
-        Entropy entropy = Entropy.of(out);
-        Seed seed = Seed.secp256k1SeedFromEntropy(entropy);                             // генерация seed из entropy(byte[16])
-        String newWallet = seed.deriveKeyPair().publicKey().deriveAddress().toString(); //генерация адреса
-        return DatabaseService.saveXrpHotWallet(currency, network, out, newWallet);
+    public WalletResponse getWalletToBuyer(String network, String currency, float amountCrypto) {
+        if(currency.equals("XRP") && network.equals("NATIVE")){
+            final byte[] out = new byte[16];
+            ThreadLocalRandom.current().nextBytes(out);                                     //генерация рандомного byte[16]
+            Entropy entropy = Entropy.of(out);
+            Seed seed = Seed.secp256k1SeedFromEntropy(entropy);                             // генерация seed из entropy(byte[16])
+            String newWallet = seed.deriveKeyPair().publicKey().deriveAddress().toString(); //генерация адреса
+            System.out.println(amountCrypto);
+            return DatabaseService.saveXrpHotWallet(currency, network, out, newWallet, amountCrypto);
+        }else{
+            return null;
+        }
+
+
+        //ToDo запустить Thread с поиском крипты
     }
 
-    public StatusResponse getStatusToBuyer(String network, String wallet){
+    public StatusResponse getStatusToBuyer(int walletId){
 
-        //ToDo проверка блокчейна
-        //ToDo если нашел транзакцию - передавать в сервис Transactions
-        // Забрать из базы byte[16] и сделать адрес для проверки
+        //ходим в базу, забираем адрес и приватный ключ
+        WalletInfoDB walletInfoDB = DatabaseService.getWalletInfo(walletId);
 
-        StringBuilder s = new StringBuilder();
-        String[] strings = s.toString().split(";");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-        byte[] in = new byte[16];
-        for (String s1: strings){
-            int i = Integer.parseInt(s1);
-            outputStream.write(i);
+        //проверка блокчейна
+        XrpCurrencyAmount xrpCurrencyAmount = NetworkCheckService.XrpNetworkCheck(walletInfoDB.getAddress());
+        double currentAmount = Long.parseLong(xrpCurrencyAmount.toString()) / (Math.pow(10, 6));
+        System.out.println(currentAmount);
+
+        if(Double.parseDouble(String.valueOf(walletInfoDB.getAmountCrypto())) <= currentAmount){
+            return new StatusResponse("Paid");
+            //ToDo если нашел, то отдельным Thread отправляем на холодный кошелек и передаем данные в сервис Transactions
+
+        }else{
+            return new StatusResponse("Waiting for full payment");
         }
-        System.out.println(Arrays.toString(outputStream.toByteArray()));
-
-        // выполнить проверку
-
-        return new StatusResponse("Paid");
-
     }
 }

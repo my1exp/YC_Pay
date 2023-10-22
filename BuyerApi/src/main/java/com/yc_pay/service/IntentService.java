@@ -23,15 +23,20 @@ public class IntentService {
 
     public IntentResponse getIntent(String sessionId, String requestId){
         WalletRequestDB walletRequestDB = DatabaseService.getNetworkAndCurrency(sessionId, requestId); //проверяем интент в базе
-        if (walletRequestDB != null) {// если он есть - запрашиваем статус оплаты
-                CryptoManagerStatusResponse cryptoManagerStatusResponse = cryptoManagerClient.getStatusToBuyer(walletRequestDB.getNetwork(),
-                        walletRequestDB.getWallet());
+        if (walletRequestDB != null) { // если он есть - проверяем статус оплаты
+            if(walletRequestDB.getStatus().equals("Paid")){ //сначала в базе интентов
+                return DatabaseService.getIntent(sessionId,requestId);
+            }else{
+                //если в базе интентов нет информации, то в CryptoManagerService
+                CryptoManagerStatusResponse cryptoManagerStatusResponse =
+                        cryptoManagerClient.getStatusToBuyer(walletRequestDB.getWalletId());
                 if (cryptoManagerStatusResponse.getStatus().equals("Paid")){
                     DatabaseService.updateIntentStatus(sessionId, requestId, cryptoManagerStatusResponse.getStatus()); //обновляем статус
                 }
+            }
             return DatabaseService.getIntent(sessionId,requestId);
-        }else{ // Если нет интента - возвращаем null
-            return null;
+        }else{
+            return null; // Если нет интента - возвращаем null
         }
     }
 
@@ -45,7 +50,7 @@ public class IntentService {
             DatabaseService.postBuyerIntent(session_id, intentRequest); // делаем запись о намерении
 
             CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(intentRequest.getNetwork(),
-                    intentRequest.getCurrency_crypto()); //создаем кошелек
+                    intentRequest.getCurrency_crypto(), intentRequest.getAmount_crypto()); //создаем кошелек
             DatabaseService.updateIntentWallet(session_id, intentRequest.getRequest_id(),
                     cryptoManagerWalletResponse.getWalletId(), cryptoManagerWalletResponse.getWallet()); //обновляем кошелек в намерении
         }

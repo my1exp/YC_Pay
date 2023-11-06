@@ -14,11 +14,11 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function11;
+import org.jooq.Function12;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row11;
+import org.jooq.Row12;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -67,9 +67,9 @@ public class Intent extends TableImpl<IntentRecord> {
     public final TableField<IntentRecord, String> CURRENCY = createField(DSL.name("currency"), SQLDataType.VARCHAR(30), this, "");
 
     /**
-     * The column <code>public.intent.amount</code>.
+     * The column <code>public.intent.amount_fiat</code>.
      */
-    public final TableField<IntentRecord, BigDecimal> AMOUNT = createField(DSL.name("amount"), SQLDataType.NUMERIC, this, "");
+    public final TableField<IntentRecord, BigDecimal> AMOUNT_FIAT = createField(DSL.name("amount_fiat"), SQLDataType.NUMERIC, this, "");
 
     /**
      * The column <code>public.intent.network</code>.
@@ -105,6 +105,11 @@ public class Intent extends TableImpl<IntentRecord> {
      * The column <code>public.intent.wallet_id</code>.
      */
     public final TableField<IntentRecord, Integer> WALLET_ID = createField(DSL.name("wallet_id"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>public.intent.amount_crypto</code>.
+     */
+    public final TableField<IntentRecord, BigDecimal> AMOUNT_CRYPTO = createField(DSL.name("amount_crypto"), SQLDataType.NUMERIC, this, "");
 
     private Intent(Name alias, Table<IntentRecord> aliased) {
         this(alias, aliased, null);
@@ -189,18 +194,18 @@ public class Intent extends TableImpl<IntentRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row11 type methods
+    // Row12 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row11<String, String, String, BigDecimal, String, String, String, LocalDateTime, String, String, Integer> fieldsRow() {
-        return (Row11) super.fieldsRow();
+    public Row12<String, String, String, BigDecimal, String, String, String, LocalDateTime, String, String, Integer, BigDecimal> fieldsRow() {
+        return (Row12) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function11<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function12<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -208,7 +213,7 @@ public class Intent extends TableImpl<IntentRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function11<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function12<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

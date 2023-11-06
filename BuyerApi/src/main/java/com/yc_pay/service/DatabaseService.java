@@ -58,12 +58,12 @@ public class DatabaseService {
             DSLContext postIntent = DSL.using(conn, SQLDialect.POSTGRES);
             postIntent
                     .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
-                            INTENT.AMOUNT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
-                            INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS)
+                            INTENT.AMOUNT_FIAT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
+                            INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS, INTENT.AMOUNT_CRYPTO)
                     .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency_crypto(),
                             BigDecimal.valueOf(intentRequest.getAmount_fiat()),
                             intentRequest.getNetwork(), intentRequest.getMerchant_id(),
-                            null, LocalDateTime.now(), "Payment", "Created")
+                            null, LocalDateTime.now(), "Payment", "Created",  BigDecimal.valueOf(intentRequest.getAmount_crypto()))
                     .execute();
         }
         catch (SQLException e) {
@@ -127,7 +127,7 @@ public class DatabaseService {
             for (Record r : result) {
                 intentResponse = new IntentResponse(r.getValue(INTENT.WALLET_TO),
                         r.getValue(INTENT.CURRENCY), r.getValue(INTENT.NETWORK),
-                        r.getValue(INTENT.AMOUNT).floatValue(), r.getValue(INTENT.STATUS));
+                        r.getValue(INTENT.AMOUNT_CRYPTO).floatValue(), r.getValue(INTENT.STATUS));
             }
             return intentResponse;
         } catch (Exception e) {

@@ -15,7 +15,7 @@ public class NetworkCheckService {
     @SneakyThrows
     public static XrpCurrencyAmount XrpNetworkCheck(String address){
 
-        HttpUrl rippledUrl = HttpUrl.get("https://xrplcluster.com/");
+        HttpUrl rippledUrl = HttpUrl.get("https://s1.ripple.com:51234/");
         System.out.println("Constructing an XrplClient connected to " + rippledUrl);
         XrplClient xrplClient = new XrplClient(rippledUrl);
 

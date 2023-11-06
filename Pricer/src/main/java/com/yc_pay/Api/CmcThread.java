@@ -31,17 +31,17 @@ public class CmcThread extends Thread{
                 // ходить в базу и забирать названия крипты
                 //класть их в array
 
-                for (int i = 0; i < arr.length(); i++) {
-                    if()
-                }
+//                for (int i = 0; i < arr.length(); i++) {
+//                    if()
+//                }
 
 
-                String arr = obj.getJSONArray("data").getJSONObject(0).getString("name");
+                String arr1 = obj.getJSONArray("data").getJSONObject(0).getString("name");
 
 
 
                 System.out.println(result);
-                System.out.println(arr);
+                System.out.println(arr1);
 //                for (int i = 0; i < arr.length(); i++) {
 //                    arr[i].
 //                }

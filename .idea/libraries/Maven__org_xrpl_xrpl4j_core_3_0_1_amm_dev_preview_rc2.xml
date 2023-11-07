@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.xrpl:xrpl4j-core:3.0.1-amm-dev-preview-rc2">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xrpl/xrpl4j-core/3.0.1-amm-dev-preview-rc2/xrpl4j-core-3.0.1-amm-dev-preview-rc2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xrpl/xrpl4j-core/3.0.1-amm-dev-preview-rc2/xrpl4j-core-3.0.1-amm-dev-preview-rc2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/xrpl/xrpl4j-core/3.0.1-amm-dev-preview-rc2/xrpl4j-core-3.0.1-amm-dev-preview-rc2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,7 @@
+micronaut:
+  application:
+    name: lk
+netty:
+  default:
+    allocator:
+      max-order: 3

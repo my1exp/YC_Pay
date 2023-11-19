@@ -2,10 +2,10 @@ package com.yc_pay.controller;
 
 import com.yc_pay.model.IntentRequest;
 import com.yc_pay.model.IntentResponse;
+import com.yc_pay.model.IntentStatusResponse;
 import com.yc_pay.service.IntentService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.*;
 
 @Controller()
@@ -18,10 +18,15 @@ public class IntentController {
     }
 
     @Get(uri = "/intent")
-    public MutableHttpResponse<IntentResponse> getBuyerIntent(@Header String session_id,
+    public HttpResponse<IntentResponse> getBuyerIntent(@Header String session_id,
                                                               @Header String request_id){
         try {
-            return HttpResponse.ok(intentService.getIntent(session_id, request_id));
+            IntentResponse intentResponse = intentService.getIntent(session_id, request_id);
+            if(intentResponse.getNetwork() != null) {
+                return HttpResponse.ok(intentResponse);
+            }else {
+                return HttpResponse.notFound();
+            }
         }catch (Exception e){
             return HttpResponse.badRequest();
         }
@@ -32,10 +37,30 @@ public class IntentController {
                                                 @Body IntentRequest intentRequest)
     {
         try {
-            intentService.postBuyerIntent(session_id, intentRequest);
-            return HttpResponse.ok();
+            if(intentService.postBuyerIntent(session_id, intentRequest).equals("!Unique intent")){
+                return HttpResponse.accepted();
+            }else if (intentService.postBuyerIntent(session_id, intentRequest).equals("Difference check false")){
+                return HttpResponse.badRequest("ERROR: Difference check false");
+            }else{
+                return HttpResponse.ok();
+            }
         }catch (Exception e){
-            return HttpResponse.accepted();
+            return HttpResponse.badRequest();
+        }
+    }
+
+    @Get(uri = "/intent_status")
+    public HttpResponse<IntentStatusResponse> getBuyerIntentStatus(@Header String session_id,
+                                                                   @Header String request_id){
+        try {
+            IntentStatusResponse intentStatusResponse = intentService.getIntentStatus(session_id, request_id);
+            if(intentStatusResponse.getStatus() != null){
+                return HttpResponse.ok(intentStatusResponse);
+            }else{
+                return HttpResponse.badRequest();
+            }
+        }catch (Exception e){
+            return HttpResponse.badRequest();
         }
     }
 }

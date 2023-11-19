@@ -4,9 +4,12 @@
 package com.yc_pay.model.dbModels.generated;
 
 
+import com.yc_pay.model.dbModels.generated.tables.CryptoPayments;
 import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
+import com.yc_pay.model.dbModels.generated.tables.records.CryptoPaymentsRecord;
 import com.yc_pay.model.dbModels.generated.tables.records.CryptoWalletsRecord;
 
+import org.jooq.ForeignKey;
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
@@ -24,5 +27,12 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<CryptoPaymentsRecord> CRYPTO_PAYMENTS_PKEY = Internal.createUniqueKey(CryptoPayments.CRYPTO_PAYMENTS, DSL.name("crypto_payments_pkey"), new TableField[] { CryptoPayments.CRYPTO_PAYMENTS.ID }, true);
     public static final UniqueKey<CryptoWalletsRecord> CRYPTO_WALLETS_PKEY = Internal.createUniqueKey(CryptoWallets.CRYPTO_WALLETS, DSL.name("crypto_wallets_pkey"), new TableField[] { CryptoWallets.CRYPTO_WALLETS.ID }, true);
+
+    // -------------------------------------------------------------------------
+    // FOREIGN KEY definitions
+    // -------------------------------------------------------------------------
+
+    public static final ForeignKey<CryptoPaymentsRecord, CryptoWalletsRecord> CRYPTO_PAYMENTS__CRYPTO_PAYMENTS_CRYPTO_WALLET_ID_FKEY = Internal.createForeignKey(CryptoPayments.CRYPTO_PAYMENTS, DSL.name("crypto_payments_crypto_wallet_id_fkey"), new TableField[] { CryptoPayments.CRYPTO_PAYMENTS.CRYPTO_WALLET_ID }, Keys.CRYPTO_WALLETS_PKEY, new TableField[] { CryptoWallets.CRYPTO_WALLETS.ID }, true);
 }

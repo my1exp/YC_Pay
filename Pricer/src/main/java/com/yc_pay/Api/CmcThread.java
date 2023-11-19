@@ -42,7 +42,7 @@ public class CmcThread extends Thread{
                 }
 
                 DatabaseService.updatePrices(cryptoCurrencies);
-                Thread.sleep(1000 * 60 * 2);
+                Thread.sleep(1000 * 60 * 5);
             } catch (IOException e) {
                 System.out.println("Error: cannot access content - " + e);
             } catch (URISyntaxException e) {

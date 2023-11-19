@@ -4,6 +4,7 @@
 package com.yc_pay.model.dbModels.generated;
 
 
+import com.yc_pay.model.dbModels.generated.tables.CryptoPayments;
 import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
 
 
@@ -12,6 +13,11 @@ import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
+
+    /**
+     * The table <code>public.crypto_payments</code>.
+     */
+    public static final CryptoPayments CRYPTO_PAYMENTS = CryptoPayments.CRYPTO_PAYMENTS;
 
     /**
      * The table <code>public.crypto_wallets</code>.

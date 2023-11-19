@@ -4,6 +4,7 @@ import com.yc_pay.model.StatusResponse;
 import com.yc_pay.model.WalletResponse;
 import com.yc_pay.service.WalletService;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
@@ -18,16 +19,16 @@ public class WalletController {
     }
 
     @Get("/wallet")
-    public HttpResponse<WalletResponse> getWalletToBuyer(@Header String network,
-                                                         @Header String currency,
-                                                         @Header float amountCrypto)
+    public MutableHttpResponse<WalletResponse> getWalletToBuyer(@Header String network,
+                                                                @Header String currency,
+                                                                @Header float amountCrypto)
     {
         return HttpResponse.ok(walletService.getWalletToBuyer(network, currency, amountCrypto));
     }
 
-    @Get("/status")
-    public HttpResponse<StatusResponse> getStatusToBuyer(@Header int walletId)
-    {
-        return HttpResponse.ok(walletService.getStatusToBuyer(walletId));
-    }
+//    @Get("/status")
+//    public HttpResponse<StatusResponse> getStatusToBuyer(@Header int walletId)
+//    {
+//        return HttpResponse.ok(walletService.getStatusToBuyer(walletId));
+//    }
 }

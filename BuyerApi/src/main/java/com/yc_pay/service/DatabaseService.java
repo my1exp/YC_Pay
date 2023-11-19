@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.jooq.Record;
 import static com.yc_pay.model.dbModels.generated.Tables.INTENT;
 import static org.jooq.impl.DSL.row;
@@ -71,7 +72,8 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequestDB getNetworkAndCurrency(String sessionId, String requestId) {
+    public static WalletRequestDB getIntent(String sessionId, String requestId) {
+        WalletRequestDB walletRequestDB = new WalletRequestDB();
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()
@@ -80,22 +82,25 @@ public class DatabaseService {
                             , INTENT.SESSION_ID.eq(sessionId))
                     .fetch();
             conn.close();
-            WalletRequestDB walletRequest = new WalletRequestDB();
+
             for (Record r : result) {
-                walletRequest = new WalletRequestDB(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
-                        r.getValue(INTENT.WALLET_TO), r.getValue(INTENT.STATUS), r.getValue(INTENT.WALLET_ID));
+                walletRequestDB = new WalletRequestDB(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
+                        r.getValue(INTENT.WALLET_TO), String.valueOf(r.getValue(Optional.ofNullable(INTENT.DESTINATION_TAG).orElse(null))),
+                        r.getValue(INTENT.STATUS), String.valueOf(r.getValue(Optional.ofNullable(INTENT.WALLET_ID).orElse(null))),
+                        r.getValue(INTENT.AMOUNT_CRYPTO).floatValue());
             }
-            return walletRequest;
-        } catch (Exception e) {
-            e.printStackTrace();
+            return walletRequestDB;
+        }
+        catch (Exception e) {
             return null;
         }
     }
 
-    public static void updateIntentWallet(String sessionId, String requestId, int id, String wallet) {
+    public static void updateIntentWallet(String sessionId, String requestId, String wallet, int dest_tag) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
-            upd.update(INTENT).set(row(INTENT.WALLET_ID, INTENT.WALLET_TO), row(id, wallet))
+            upd.update(INTENT).set(row(INTENT.WALLET_TO, INTENT.DESTINATION_TAG),
+                            row(wallet, dest_tag))
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
                     .execute();
         } catch (Exception e) {
@@ -111,28 +116,6 @@ public class DatabaseService {
                     .execute();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public static IntentResponse getIntent(String sessionId, String requestId) {
-        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
-            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
-            Result<Record> result = get.select()
-                    .from(INTENT)
-                    .where(INTENT.REQUEST_ID.eq(requestId)
-                            , INTENT.SESSION_ID.eq(sessionId))
-                    .fetch();
-            conn.close();
-            IntentResponse intentResponse = new IntentResponse();
-            for (Record r : result) {
-                intentResponse = new IntentResponse(r.getValue(INTENT.WALLET_TO),
-                        r.getValue(INTENT.CURRENCY), r.getValue(INTENT.NETWORK),
-                        r.getValue(INTENT.AMOUNT_CRYPTO).floatValue(), r.getValue(INTENT.STATUS));
-            }
-            return intentResponse;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 }

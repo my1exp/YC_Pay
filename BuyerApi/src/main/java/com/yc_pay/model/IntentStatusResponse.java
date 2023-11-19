@@ -12,10 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class IntentResponse {
-    private String wallet_to;
-    private String destination_tag;
-    private String currency;
-    private String network;
-    private float amount;
+public class IntentStatusResponse {
+    private String status;
 }

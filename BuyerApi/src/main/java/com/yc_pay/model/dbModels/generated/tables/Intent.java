@@ -14,11 +14,11 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function12;
+import org.jooq.Function13;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row12;
+import org.jooq.Row13;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -111,6 +111,11 @@ public class Intent extends TableImpl<IntentRecord> {
      */
     public final TableField<IntentRecord, BigDecimal> AMOUNT_CRYPTO = createField(DSL.name("amount_crypto"), SQLDataType.NUMERIC, this, "");
 
+    /**
+     * The column <code>public.intent.destination_tag</code>.
+     */
+    public final TableField<IntentRecord, Integer> DESTINATION_TAG = createField(DSL.name("destination_tag"), SQLDataType.INTEGER, this, "");
+
     private Intent(Name alias, Table<IntentRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -194,18 +199,18 @@ public class Intent extends TableImpl<IntentRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row12 type methods
+    // Row13 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row12<String, String, String, BigDecimal, String, String, String, LocalDateTime, String, String, Integer, BigDecimal> fieldsRow() {
-        return (Row12) super.fieldsRow();
+    public Row13<String, String, String, BigDecimal, String, String, String, LocalDateTime, String, String, Integer, BigDecimal, Integer> fieldsRow() {
+        return (Row13) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function12<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function13<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? super Integer, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -213,7 +218,7 @@ public class Intent extends TableImpl<IntentRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function12<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function13<? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super Integer, ? super BigDecimal, ? super Integer, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

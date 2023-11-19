@@ -10,7 +10,4 @@ public interface CryptoManagerClient {
     CryptoManagerWalletResponse getWalletToBuyer(@Header String network,
                                                  @Header String currency,
                                                  @Header float amountCrypto);
-
-    @Get(value = "/status")
-    CryptoManagerStatusResponse getStatusToBuyer(@Header int walletId);
 }

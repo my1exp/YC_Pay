@@ -4,6 +4,7 @@
 package com.yc_pay.model.dbModels.generated;
 
 
+import com.yc_pay.model.dbModels.generated.tables.CryptoPayments;
 import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
 
 import java.util.Arrays;
@@ -28,6 +29,11 @@ public class Public extends SchemaImpl {
     public static final Public PUBLIC = new Public();
 
     /**
+     * The table <code>public.crypto_payments</code>.
+     */
+    public final CryptoPayments CRYPTO_PAYMENTS = CryptoPayments.CRYPTO_PAYMENTS;
+
+    /**
      * The table <code>public.crypto_wallets</code>.
      */
     public final CryptoWallets CRYPTO_WALLETS = CryptoWallets.CRYPTO_WALLETS;
@@ -48,6 +54,7 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            CryptoPayments.CRYPTO_PAYMENTS,
             CryptoWallets.CRYPTO_WALLETS
         );
     }

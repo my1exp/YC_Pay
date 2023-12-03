@@ -4,7 +4,7 @@ import type { InferGetStaticPropsType, GetStaticProps } from "next";
 
 export const getStaticProps = (async (context) => {
   let currency_map = new Map();
-  const res = await fetch("http://127.0.0.1:8000/Supported_currencies", {
+  const res = await fetch("http://127.0.0.1:8080/Supported_currencies", {
     method: "GET",
     redirect: "follow",
   })

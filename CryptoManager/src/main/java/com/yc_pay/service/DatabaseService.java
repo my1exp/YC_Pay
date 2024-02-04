@@ -1,15 +1,18 @@
 package com.yc_pay.service;
 
-import com.yc_pay.model.WalletResponse;
+import com.yc_pay.client.xrp.XrpWalletResponse;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.yc_pay.model.dbModels.generated.Tables.CRYPTO_PAYMENTS;
 import static com.yc_pay.model.dbModels.generated.Tables.CRYPTO_WALLETS;
@@ -23,14 +26,10 @@ public class DatabaseService {
     public static String password = "1234";
     public static String url = "jdbc:postgresql://localhost:5432/CryptoManager";
 
-    public static Integer saveXrpHotWallet(String currency, String network,
-                                                  byte[] secret, String address){
 
-        StringBuilder s = new StringBuilder();
-        for (byte b : secret) {
-            s.append(b).append(";");
-        }
-        String stringSecret = s.toString();
+    public static Integer saveXrpHotWallet(String currency, String network,
+                                           XrpWalletResponse xrpWalletResponse){
+
         int wallet_id = 0;
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext postIntent = DSL.using(conn, SQLDialect.POSTGRES);
@@ -38,12 +37,13 @@ public class DatabaseService {
                     .insertInto(CRYPTO_WALLETS, CRYPTO_WALLETS.CURRENCY_CRYPTO, CRYPTO_WALLETS.NETWORK,
                             CRYPTO_WALLETS.PUBLIC_KEY, CRYPTO_WALLETS.PRIVATE_KEY, CRYPTO_WALLETS.ADDRESS,
                             CRYPTO_WALLETS.CREATE_DATE, CRYPTO_WALLETS.TYPE)
-                    .values(currency, network, null, stringSecret, address,
+                    .values(currency, network, xrpWalletResponse.getPublic_key(),
+                            xrpWalletResponse.getPrivate_key(), xrpWalletResponse.getAddress(),
                             LocalDateTime.now(), "HotWallet")
                     .execute();
             Result<Record> result = postIntent.select()
                     .from(CRYPTO_WALLETS)
-                    .where(CRYPTO_WALLETS.ADDRESS.eq(address))
+                    .where(CRYPTO_WALLETS.ADDRESS.eq(xrpWalletResponse.getAddress()))
                     .fetch();
 
             for (Record r : result) {
@@ -72,7 +72,9 @@ public class DatabaseService {
         }
     }
 
-    public static WalletResponse getWalletAndTag(String currency, String network, float amountCrypto) {
+    public static List<Integer>  getWalletAndTag(String currency, String network, float amountCrypto) {
+
+        List<Integer> walletTag = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext dslContext = DSL.using(conn, SQLDialect.POSTGRES);
@@ -92,14 +94,9 @@ public class DatabaseService {
             conn.close();
             int countMaxWalletId = Integer.parseInt(countRowsResult.get(0).getValue("count").toString());
 
-            if(maxWalletId == 0 || countMaxWalletId >= 100){
-               int wallet_id =  WalletService.createWallet(currency, network);
-               savePaymentFromBuyer(wallet_id, amountCrypto,0);
-               return new WalletResponse(getWalletWithId(wallet_id), 0);
-            }else{
-                savePaymentFromBuyer(maxWalletId, amountCrypto, countMaxWalletId);
-                return new WalletResponse(getWalletWithId(maxWalletId), countMaxWalletId);
-            }
+            walletTag.add(maxWalletId);
+            walletTag.add(countMaxWalletId);
+            return walletTag;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

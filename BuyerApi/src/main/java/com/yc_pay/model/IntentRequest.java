@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 @ToString
 public class IntentRequest {
-    private String request_id;
+    private String order_id;
     private String currency_crypto;
     private String network;
     private float amount_crypto;

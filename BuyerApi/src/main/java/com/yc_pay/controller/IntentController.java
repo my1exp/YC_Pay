@@ -19,9 +19,10 @@ public class IntentController {
 
     @Get(uri = "/intent")
     public HttpResponse<IntentResponse> getBuyerIntent(@Header String session_id,
-                                                              @Header String request_id){
+                                                       @Header String order_id,
+                                                       @Header String merchant_id){
         try {
-            IntentResponse intentResponse = intentService.getIntent(session_id, request_id);
+            IntentResponse intentResponse = intentService.getIntent(session_id, order_id, merchant_id);
             if(intentResponse.getNetwork() != null) {
                 return HttpResponse.ok(intentResponse);
             }else {
@@ -51,9 +52,10 @@ public class IntentController {
 
     @Get(uri = "/intent_status")
     public HttpResponse<IntentStatusResponse> getBuyerIntentStatus(@Header String session_id,
-                                                                   @Header String request_id){
+                                                                   @Header String order_id,
+                                                                   @Header String merchant_id){
         try {
-            IntentStatusResponse intentStatusResponse = intentService.getIntentStatus(session_id, request_id);
+            IntentStatusResponse intentStatusResponse = intentService.getIntentStatus(session_id, order_id, merchant_id);
             if(intentStatusResponse.getStatus() != null){
                 return HttpResponse.ok(intentStatusResponse);
             }else{

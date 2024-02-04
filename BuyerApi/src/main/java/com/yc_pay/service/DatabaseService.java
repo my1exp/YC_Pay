@@ -61,7 +61,7 @@ public class DatabaseService {
                     .insertInto(INTENT, INTENT.REQUEST_ID, INTENT.SESSION_ID, INTENT.CURRENCY,
                             INTENT.AMOUNT_FIAT, INTENT.NETWORK, INTENT.MERCHANT_ID, INTENT.WALLET_TO,
                             INTENT.CREATE_DATE, INTENT.CATEGORY, INTENT.STATUS, INTENT.AMOUNT_CRYPTO)
-                    .values(intentRequest.getRequest_id(), session_id, intentRequest.getCurrency_crypto(),
+                    .values(intentRequest.getOrder_id(), session_id, intentRequest.getCurrency_crypto(),
                             BigDecimal.valueOf(intentRequest.getAmount_fiat()),
                             intentRequest.getNetwork(), intentRequest.getMerchant_id(),
                             null, LocalDateTime.now(), "Payment", "Created",  BigDecimal.valueOf(intentRequest.getAmount_crypto()))
@@ -72,14 +72,14 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequestDB getIntent(String sessionId, String requestId) {
+    public static WalletRequestDB getIntent(String sessionId, String orderId, String merchant_id) {
         WalletRequestDB walletRequestDB = new WalletRequestDB();
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()
                     .from(INTENT)
-                    .where(INTENT.REQUEST_ID.eq(requestId)
-                            , INTENT.SESSION_ID.eq(sessionId))
+                    .where(INTENT.REQUEST_ID.eq(orderId)
+                            , INTENT.MERCHANT_ID.eq(merchant_id))
                     .fetch();
             conn.close();
 
@@ -96,23 +96,23 @@ public class DatabaseService {
         }
     }
 
-    public static void updateIntentWallet(String sessionId, String requestId, String wallet, int dest_tag) {
+    public static void updateIntentWallet(String merchantId, String requestId, String wallet, int dest_tag) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
             upd.update(INTENT).set(row(INTENT.WALLET_TO, INTENT.DESTINATION_TAG),
                             row(wallet, dest_tag))
-                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
+                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.MERCHANT_ID.eq(merchantId))
                     .execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void updateIntentStatus(String sessionId, String requestId, String status) {
+    public static void updateIntentStatus(String merchantId, String requestId, String status) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
             upd.update(INTENT).set(INTENT.STATUS, status)
-                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
+                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.MERCHANT_ID.eq(merchantId))
                     .execute();
         } catch (Exception e) {
             e.printStackTrace();

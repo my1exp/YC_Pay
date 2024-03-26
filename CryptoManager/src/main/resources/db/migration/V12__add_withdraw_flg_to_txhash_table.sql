@@ -1,0 +1,1 @@
+ALTER TABLE transactions_hash add COLUMN withdraw_flg integer;

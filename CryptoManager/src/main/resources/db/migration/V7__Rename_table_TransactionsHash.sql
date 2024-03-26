@@ -1,0 +1,1 @@
+ALTER TABLE transactionshash RENAME TO transactions_hash;

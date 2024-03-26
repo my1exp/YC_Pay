@@ -24,5 +24,5 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<TransactionRecord> TRANSACTION_PKEY = Internal.createUniqueKey(Transaction.TRANSACTION, DSL.name("transaction_pkey"), new TableField[] { Transaction.TRANSACTION.TRANSACTIONID, Transaction.TRANSACTION.MERCHANTID }, true);
+    public static final UniqueKey<TransactionRecord> TRANSACTION_PKEY = Internal.createUniqueKey(Transaction.TRANSACTION, DSL.name("transaction_pkey"), new TableField[] { Transaction.TRANSACTION.PAYMENT_ID, Transaction.TRANSACTION.MERCHANT_ID }, true);
 }

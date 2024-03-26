@@ -1,0 +1,1 @@
+ALTER TABLE crypto_payments add COLUMN paid_amount float;

@@ -9,5 +9,7 @@ public interface CryptoManagerClient {
     @Get(value = "/wallet")
     CryptoManagerWalletResponse getWalletToBuyer(@Header String network,
                                                  @Header String currency,
-                                                 @Header float amountCrypto);
+                                                 @Header float amountCrypto,
+                                                 @Header String requestId,
+                                                 @Header String sessionId);
 }

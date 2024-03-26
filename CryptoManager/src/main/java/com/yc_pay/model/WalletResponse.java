@@ -13,6 +13,7 @@ import lombok.*;
 @Builder
 @ToString
 public class WalletResponse {
+    private int walletId;
     private String wallet;
     private int Destination_tag;
 }

@@ -1,0 +1,12 @@
+db:
+  username: postgres
+  password: 1234
+  url: jdbc:postgresql://localhost:5432/CryptoManager
+shedlock:
+  defaults:
+    lock-at-most-for: 5s
+micronaut:
+  application:
+    name: CryptoManager
+  server:
+    port: ${SERVER_PORT:8080}

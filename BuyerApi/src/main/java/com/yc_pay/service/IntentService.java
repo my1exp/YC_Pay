@@ -21,18 +21,19 @@ public class IntentService {
     }
 
 
-    public IntentResponse getIntent(String sessionId, String requestId){
+    public IntentResponse getIntent(String sessionId, String requestId, String merchantId){
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntent(sessionId, requestId);
+        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, requestId, merchantId);
         // если он есть - создаем кошелек для оплаты
         if (walletRequestDB.getStatus() != null) {
             if(walletRequestDB.getWallet() == null) {
                 //создаем кошелек
-                CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(walletRequestDB.getNetwork(),
-                        walletRequestDB.getCurrency(), walletRequestDB.getAmountCrypto());
+                CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(
+                        walletRequestDB.getNetwork(), walletRequestDB.getCurrency(),
+                        walletRequestDB.getAmountCrypto(), requestId, sessionId);
                 //обновляем кошелек в намерении
-                DatabaseService.updateIntentWallet(sessionId, requestId, cryptoManagerWalletResponse.getWallet(),
-                        cryptoManagerWalletResponse.getDestination_tag());
+                DatabaseService.updateIntentWallet(merchantId, requestId, cryptoManagerWalletResponse.getWalletId(),
+                        cryptoManagerWalletResponse.getWallet(), cryptoManagerWalletResponse.getDestination_tag());
                 return new IntentResponse(cryptoManagerWalletResponse.getWallet(), String.valueOf(cryptoManagerWalletResponse.getDestination_tag()),
                         walletRequestDB.getCurrency(), walletRequestDB.getNetwork(), walletRequestDB.getAmountCrypto());
             }
@@ -47,9 +48,9 @@ public class IntentService {
     }
 
 
-    public IntentStatusResponse getIntentStatus(String sessionId, String requestId){
+    public IntentStatusResponse getIntentStatus(String sessionId, String order_id, String merchant_id){
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntent(sessionId, requestId);
+        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, order_id, merchant_id);
         // если он есть - проверяем статус оплаты
         if (walletRequestDB.getStatus() != null) {
             return new IntentStatusResponse(walletRequestDB.getStatus());
@@ -60,7 +61,8 @@ public class IntentService {
 
     public String postBuyerIntent(String session_id, IntentRequest intentRequest) {
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntent(session_id, intentRequest.getRequest_id());
+        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(session_id, intentRequest.getOrder_id(),
+                intentRequest.getMerchant_id());
         //Если уже есть - говорим, что уже приняли запрос
         if(walletRequestDB.getStatus() != null){
             return "!Unique intent";
@@ -79,5 +81,14 @@ public class IntentService {
                 return "Difference check false";
             }
         }
+    }
+
+    public String updateBuyerIntentStatus(String orderId, String sessionId) {
+
+        String status = DatabaseService.getIntentByOrderIdAndSessionId(orderId, sessionId);
+        if(status.equals("Created")){
+            DatabaseService.updateIntentStatusBySessionIdAndRequestId(sessionId, orderId, "Paid");
+        }
+        return "Ok";
     }
 }

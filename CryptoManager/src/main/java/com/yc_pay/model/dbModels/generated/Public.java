@@ -6,6 +6,8 @@ package com.yc_pay.model.dbModels.generated;
 
 import com.yc_pay.model.dbModels.generated.tables.CryptoPayments;
 import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
+import com.yc_pay.model.dbModels.generated.tables.Shedlock;
+import com.yc_pay.model.dbModels.generated.tables.TransactionsHash;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +41,16 @@ public class Public extends SchemaImpl {
     public final CryptoWallets CRYPTO_WALLETS = CryptoWallets.CRYPTO_WALLETS;
 
     /**
+     * The table <code>public.shedlock</code>.
+     */
+    public final Shedlock SHEDLOCK = Shedlock.SHEDLOCK;
+
+    /**
+     * The table <code>public.transactions_hash</code>.
+     */
+    public final TransactionsHash TRANSACTIONS_HASH = TransactionsHash.TRANSACTIONS_HASH;
+
+    /**
      * No further instances allowed
      */
     private Public() {
@@ -55,7 +67,9 @@ public class Public extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.asList(
             CryptoPayments.CRYPTO_PAYMENTS,
-            CryptoWallets.CRYPTO_WALLETS
+            CryptoWallets.CRYPTO_WALLETS,
+            Shedlock.SHEDLOCK,
+            TransactionsHash.TRANSACTIONS_HASH
         );
     }
 }

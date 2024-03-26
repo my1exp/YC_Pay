@@ -73,29 +73,29 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
     public final TableField<CryptoPaymentsRecord, Double> AMOUNT_CRYPTO = createField(DSL.name("amount_crypto"), SQLDataType.DOUBLE, this, "");
 
     /**
-     * The column <code>public.crypto_payments.merchant_id</code>.
-     */
-    public final TableField<CryptoPaymentsRecord, String> MERCHANT_ID = createField(DSL.name("merchant_id"), SQLDataType.VARCHAR(50), this, "");
-
-    /**
      * The column <code>public.crypto_payments.request_id</code>.
      */
     public final TableField<CryptoPaymentsRecord, String> REQUEST_ID = createField(DSL.name("request_id"), SQLDataType.VARCHAR(50), this, "");
 
     /**
-     * The column <code>public.crypto_payments.amount_fiat</code>.
-     */
-    public final TableField<CryptoPaymentsRecord, Double> AMOUNT_FIAT = createField(DSL.name("amount_fiat"), SQLDataType.DOUBLE, this, "");
-
-    /**
-     * The column <code>public.crypto_payments.currency_fiat</code>.
-     */
-    public final TableField<CryptoPaymentsRecord, String> CURRENCY_FIAT = createField(DSL.name("currency_fiat"), SQLDataType.VARCHAR(30), this, "");
-
-    /**
      * The column <code>public.crypto_payments.destination_tag</code>.
      */
     public final TableField<CryptoPaymentsRecord, Integer> DESTINATION_TAG = createField(DSL.name("destination_tag"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>public.crypto_payments.paid_amount</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, Double> PAID_AMOUNT = createField(DSL.name("paid_amount"), SQLDataType.DOUBLE, this, "");
+
+    /**
+     * The column <code>public.crypto_payments.delivered_payment_api_flg</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, Integer> DELIVERED_PAYMENT_API_FLG = createField(DSL.name("delivered_payment_api_flg"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>public.crypto_payments.session_id</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, String> SESSION_ID = createField(DSL.name("session_id"), SQLDataType.VARCHAR(50), this, "");
 
     private CryptoPayments(Name alias, Table<CryptoPaymentsRecord> aliased) {
         this(alias, aliased, null);
@@ -207,14 +207,14 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Integer, Integer, Integer, Double, String, String, Double, String, Integer> fieldsRow() {
+    public Row9<Integer, Integer, Integer, Double, String, Integer, Double, Integer, String> fieldsRow() {
         return (Row9) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super String, ? super Double, ? super String, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -222,7 +222,7 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super String, ? super Double, ? super String, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

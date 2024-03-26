@@ -1,17 +1,15 @@
 package com.yc_pay.service;
 
-import com.yc_pay.client.xrp.XrpCheckResponse;
 import com.yc_pay.client.xrp.XrpClient;
-import com.yc_pay.client.xrp.XrpWalletResponse;
-import com.yc_pay.model.WalletAddress;
 import com.yc_pay.model.WalletResponse;
 import jakarta.inject.Singleton;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.xrpl.xrpl4j.crypto.keys.Seed;
+import java.util.concurrent.ThreadLocalRandom;
+import org.xrpl.xrpl4j.crypto.keys.*;
+import java.util.Arrays;
 import java.util.List;
 
-import static com.yc_pay.service.DatabaseService.getWalletWithId;
+import static com.yc_pay.service.DatabaseService.getWalletAddressWithId;
 import static com.yc_pay.service.DatabaseService.savePaymentFromBuyer;
 
 @Singleton
@@ -23,20 +21,19 @@ public class WalletService {
         this.xrpClient = xrpClient;
     }
 
-    public WalletResponse getWalletToBuyer(String network, String currency, float amountCrypto) {
+    public WalletResponse getWalletToBuyer(String network, String currency, float amountCrypto,
+                                           String requestId, String sessionId) {
         if(currency.equals("XRP") && network.equals("NATIVE")){
-
             List<Integer> walletAndTag = DatabaseService.getWalletAndTag(currency, network, amountCrypto);
-            System.out.println("max wallet + max tag: " + walletAndTag);
-            if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 50){
-                int wallet_id = createWallet(network, currency);
-                System.out.println("New wallet id: " + wallet_id);
-                savePaymentFromBuyer(wallet_id, amountCrypto,0);
-                return new WalletResponse(getWalletWithId(wallet_id), 0);
+            if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 100005){
+                int walletId = createWallet(network, currency);
+                savePaymentFromBuyer(walletId, amountCrypto,100000, requestId, sessionId);
+                return new WalletResponse(walletId, getWalletAddressWithId(walletId),0);
             }else{
-                System.out.println("else");
-                savePaymentFromBuyer(walletAndTag.get(0), amountCrypto, walletAndTag.get(1));
-                return new WalletResponse(getWalletWithId(walletAndTag.get(0)), walletAndTag.get(1));
+                savePaymentFromBuyer(walletAndTag.get(0), amountCrypto,
+                        walletAndTag.get(1), requestId, sessionId);
+                return new WalletResponse(walletAndTag.get(0),
+                        getWalletAddressWithId(walletAndTag.get(0)), walletAndTag.get(1));
             }
         }else{
             return null;
@@ -45,22 +42,28 @@ public class WalletService {
 
     public Integer createWallet(String network, String currency) {
         if(currency.equals("XRP") && network.equals("NATIVE")){
-            System.out.println("TEST CREATE WALLET METHOD");
 //            Создание одноразового кошелька и запись в таблицу с кошельками
-            XrpWalletResponse xrpWalletResponse = xrpClient.getWallet(network, currency);
-            System.out.println(xrpWalletResponse);
-            return DatabaseService.saveXrpHotWallet(currency, network, xrpWalletResponse); // Запись в таблицу БД
+
+//          генерация рандомного byte[16]
+            final byte[] privateKey = new byte[16];
+            ThreadLocalRandom.current().nextBytes(privateKey);
+//          генерация секретного ключа
+            Entropy entropy = Entropy.of(privateKey);
+            Seed seed = Seed.secp256k1SeedFromEntropy(entropy);
+//          генерация адреса кошелька
+            String address = seed.deriveKeyPair().publicKey().deriveAddress().toString();
+//          Запись в таблицу БД
+            return DatabaseService.saveXrpHotWallet(currency, network, Arrays.toString(privateKey), address);
         }else{
-            System.out.println("Create Wallet ELSE");
             return 0;
         }
     }
 
-    public XrpCheckResponse XrpCheckPayments(HashMap<String, ArrayList<WalletAddress>> payments) {
-        XrpCheckResponse ClientPayments = xrpClient.getPayments(payments);
-        System.out.println(ClientPayments);
-        return ClientPayments;
-        }
+//    public XrpCheckResponse XrpCheckPayments(HashMap<String, ArrayList<WalletAddress>> payments) {
+//        XrpCheckResponse ClientPayments = xrpClient.checkPayment(payments);
+//        System.out.println(ClientPayments);
+//        return ClientPayments;
+//        }
 //    public StatusResponse getStatusToBuyer(int walletId){
 //
 //        //ходим в базу, забираем адрес и приватный ключ

@@ -14,11 +14,11 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function10;
+import org.jooq.Function13;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row10;
+import org.jooq.Row13;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -52,34 +52,34 @@ public class Transaction extends TableImpl<TransactionRecord> {
     }
 
     /**
-     * The column <code>public.transaction.transactionid</code>.
+     * The column <code>public.transaction.payment_id</code>.
      */
-    public final TableField<TransactionRecord, String> TRANSACTIONID = createField(DSL.name("transactionid"), SQLDataType.VARCHAR(50).nullable(false), this, "");
+    public final TableField<TransactionRecord, String> PAYMENT_ID = createField(DSL.name("payment_id"), SQLDataType.VARCHAR(50).nullable(false), this, "");
 
     /**
-     * The column <code>public.transaction.merchantid</code>.
+     * The column <code>public.transaction.merchant_id</code>.
      */
-    public final TableField<TransactionRecord, String> MERCHANTID = createField(DSL.name("merchantid"), SQLDataType.VARCHAR(50).nullable(false), this, "");
+    public final TableField<TransactionRecord, String> MERCHANT_ID = createField(DSL.name("merchant_id"), SQLDataType.VARCHAR(50).nullable(false), this, "");
 
     /**
-     * The column <code>public.transaction.walletfrom</code>.
+     * The column <code>public.transaction.wallet_from</code>.
      */
-    public final TableField<TransactionRecord, String> WALLETFROM = createField(DSL.name("walletfrom"), SQLDataType.VARCHAR(50), this, "");
+    public final TableField<TransactionRecord, String> WALLET_FROM = createField(DSL.name("wallet_from"), SQLDataType.VARCHAR(50), this, "");
 
     /**
-     * The column <code>public.transaction.walletto</code>.
+     * The column <code>public.transaction.wallet_to</code>.
      */
-    public final TableField<TransactionRecord, String> WALLETTO = createField(DSL.name("walletto"), SQLDataType.VARCHAR(50), this, "");
+    public final TableField<TransactionRecord, String> WALLET_TO = createField(DSL.name("wallet_to"), SQLDataType.VARCHAR(50), this, "");
 
     /**
-     * The column <code>public.transaction.currency</code>.
+     * The column <code>public.transaction.currency_crypto</code>.
      */
-    public final TableField<TransactionRecord, String> CURRENCY = createField(DSL.name("currency"), SQLDataType.VARCHAR(20), this, "");
+    public final TableField<TransactionRecord, String> CURRENCY_CRYPTO = createField(DSL.name("currency_crypto"), SQLDataType.VARCHAR(20), this, "");
 
     /**
-     * The column <code>public.transaction.amount</code>.
+     * The column <code>public.transaction.amount_crypto</code>.
      */
-    public final TableField<TransactionRecord, BigDecimal> AMOUNT = createField(DSL.name("amount"), SQLDataType.NUMERIC, this, "");
+    public final TableField<TransactionRecord, BigDecimal> AMOUNT_CRYPTO = createField(DSL.name("amount_crypto"), SQLDataType.NUMERIC, this, "");
 
     /**
      * The column <code>public.transaction.network</code>.
@@ -87,9 +87,9 @@ public class Transaction extends TableImpl<TransactionRecord> {
     public final TableField<TransactionRecord, String> NETWORK = createField(DSL.name("network"), SQLDataType.VARCHAR(20), this, "");
 
     /**
-     * The column <code>public.transaction.createdate</code>.
+     * The column <code>public.transaction.payment_dttm</code>.
      */
-    public final TableField<TransactionRecord, LocalDateTime> CREATEDATE = createField(DSL.name("createdate"), SQLDataType.LOCALDATETIME(6), this, "");
+    public final TableField<TransactionRecord, LocalDateTime> PAYMENT_DTTM = createField(DSL.name("payment_dttm"), SQLDataType.LOCALDATETIME(6), this, "");
 
     /**
      * The column <code>public.transaction.category</code>.
@@ -97,9 +97,24 @@ public class Transaction extends TableImpl<TransactionRecord> {
     public final TableField<TransactionRecord, String> CATEGORY = createField(DSL.name("category"), SQLDataType.VARCHAR(20), this, "");
 
     /**
-     * The column <code>public.transaction.status</code>.
+     * The column <code>public.transaction.currency_fiat</code>.
      */
-    public final TableField<TransactionRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(20), this, "");
+    public final TableField<TransactionRecord, String> CURRENCY_FIAT = createField(DSL.name("currency_fiat"), SQLDataType.VARCHAR(20), this, "");
+
+    /**
+     * The column <code>public.transaction.amount_fiat</code>.
+     */
+    public final TableField<TransactionRecord, BigDecimal> AMOUNT_FIAT = createField(DSL.name("amount_fiat"), SQLDataType.NUMERIC, this, "");
+
+    /**
+     * The column <code>public.transaction.income_pocket</code>.
+     */
+    public final TableField<TransactionRecord, String> INCOME_POCKET = createField(DSL.name("income_pocket"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.transaction.output_pocket</code>.
+     */
+    public final TableField<TransactionRecord, String> OUTPUT_POCKET = createField(DSL.name("output_pocket"), SQLDataType.VARCHAR(50), this, "");
 
     private Transaction(Name alias, Table<TransactionRecord> aliased) {
         this(alias, aliased, null);
@@ -184,18 +199,18 @@ public class Transaction extends TableImpl<TransactionRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row10 type methods
+    // Row13 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row10<String, String, String, String, String, BigDecimal, String, LocalDateTime, String, String> fieldsRow() {
-        return (Row10) super.fieldsRow();
+    public Row13<String, String, String, String, String, BigDecimal, String, LocalDateTime, String, String, BigDecimal, String, String> fieldsRow() {
+        return (Row13) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function10<? super String, ? super String, ? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super LocalDateTime, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function13<? super String, ? super String, ? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -203,7 +218,7 @@ public class Transaction extends TableImpl<TransactionRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function10<? super String, ? super String, ? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super LocalDateTime, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function13<? super String, ? super String, ? super String, ? super String, ? super String, ? super BigDecimal, ? super String, ? super LocalDateTime, ? super String, ? super String, ? super BigDecimal, ? super String, ? super String, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

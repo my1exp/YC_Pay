@@ -29,13 +29,13 @@ import java.math.RoundingMode;
 public class CryptoTxService {
 
     @SneakyThrows
-    public static void XrpSendToColdWallet(String address, String privateKey, double currentAmount){
+    public static void XrpSendToColdWallet(String addressTO, String privateKeyAddressFrom, Double currentAmount){
 
         HttpUrl rippledUrl = HttpUrl.get("https://xrplcluster.com/");
         XrplClient xrplClient = new XrplClient(rippledUrl);
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String[] pk = privateKey.split(";");
+        String[] pk = privateKeyAddressFrom.substring(1).replaceAll("]", "").split(", ");
 
         for (int i = 0; i < pk.length; i++) {
             output.write(Integer.parseInt(pk[i]));
@@ -45,10 +45,11 @@ public class CryptoTxService {
         Entropy entropy = Entropy.of(out);
         Seed seed = Seed.secp256k1SeedFromEntropy(entropy);
 
+
         // Prepare transaction --------------------------------------------------------
         // Look up your Account Info
         AccountInfoRequestParams requestParams = AccountInfoRequestParams.builder()
-                .account(Address.of(address))
+                .account(Address.of(seed.deriveKeyPair().publicKey().deriveAddress().toString()))
                 .ledgerSpecifier(LedgerSpecifier.VALIDATED)
                 .build();
         AccountInfoResult accountInfoResult = xrplClient.accountInfo(requestParams);
@@ -71,15 +72,15 @@ public class CryptoTxService {
         UnsignedInteger lastLedgerSequence = validatedLedger.plus(UnsignedInteger.valueOf(4)).unsignedIntegerValue();
 
         Payment payment = Payment.builder()
-                .account(Address.of(address))
-                .amount(XrpCurrencyAmount.ofXrp(BigDecimal.valueOf(currentAmount).setScale(6, RoundingMode.CEILING)))
-                .destination(Address.of("rUrYBYvvgGAH1oGG827zZg84xPjp19vLmV"))
+                .account(Address.of(seed.deriveKeyPair().publicKey().deriveAddress().toString()))
+                .amount(XrpCurrencyAmount.ofXrp(BigDecimal.valueOf(currentAmount - 10.001).setScale(6, RoundingMode.CEILING)))
+                .destination(Address.of(addressTO))
                 .sequence(sequence)
                 .fee(openLedgerFee)
                 .signingPublicKey(seed.deriveKeyPair().publicKey())
                 .lastLedgerSequence(lastLedgerSequence)
                 .build();
-        System.out.println("Constructed Payment: " + payment);
+//        System.out.println("Constructed Payment: " + payment);
 
         // Sign transaction -----------------------------------------------------------
         // Construct a SignatureService to sign the Payment
@@ -92,6 +93,5 @@ public class CryptoTxService {
         // Submit transaction ---------------------------------------------------------
         SubmitResult<Payment> paymentSubmitResult = xrplClient.submit(signedPayment);
         System.out.println(paymentSubmitResult);
-
     }
 }

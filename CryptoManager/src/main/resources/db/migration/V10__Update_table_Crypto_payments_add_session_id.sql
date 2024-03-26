@@ -1,0 +1,1 @@
+ALTER TABLE crypto_payments add COLUMN session_id varchar(50);

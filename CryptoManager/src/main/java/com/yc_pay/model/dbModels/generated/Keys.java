@@ -6,8 +6,12 @@ package com.yc_pay.model.dbModels.generated;
 
 import com.yc_pay.model.dbModels.generated.tables.CryptoPayments;
 import com.yc_pay.model.dbModels.generated.tables.CryptoWallets;
+import com.yc_pay.model.dbModels.generated.tables.Shedlock;
+import com.yc_pay.model.dbModels.generated.tables.TransactionsHash;
 import com.yc_pay.model.dbModels.generated.tables.records.CryptoPaymentsRecord;
 import com.yc_pay.model.dbModels.generated.tables.records.CryptoWalletsRecord;
+import com.yc_pay.model.dbModels.generated.tables.records.ShedlockRecord;
+import com.yc_pay.model.dbModels.generated.tables.records.TransactionsHashRecord;
 
 import org.jooq.ForeignKey;
 import org.jooq.TableField;
@@ -29,6 +33,8 @@ public class Keys {
 
     public static final UniqueKey<CryptoPaymentsRecord> CRYPTO_PAYMENTS_PKEY = Internal.createUniqueKey(CryptoPayments.CRYPTO_PAYMENTS, DSL.name("crypto_payments_pkey"), new TableField[] { CryptoPayments.CRYPTO_PAYMENTS.ID }, true);
     public static final UniqueKey<CryptoWalletsRecord> CRYPTO_WALLETS_PKEY = Internal.createUniqueKey(CryptoWallets.CRYPTO_WALLETS, DSL.name("crypto_wallets_pkey"), new TableField[] { CryptoWallets.CRYPTO_WALLETS.ID }, true);
+    public static final UniqueKey<ShedlockRecord> SHEDLOCK_PKEY = Internal.createUniqueKey(Shedlock.SHEDLOCK, DSL.name("shedlock_pkey"), new TableField[] { Shedlock.SHEDLOCK.NAME }, true);
+    public static final UniqueKey<TransactionsHashRecord> TRANSACTIONS_HASH_PKEY = Internal.createUniqueKey(TransactionsHash.TRANSACTIONS_HASH, DSL.name("transactions_hash_pkey"), new TableField[] { TransactionsHash.TRANSACTIONS_HASH.HASH }, true);
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions

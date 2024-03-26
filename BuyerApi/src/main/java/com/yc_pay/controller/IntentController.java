@@ -50,6 +50,19 @@ public class IntentController {
         }
     }
 
+    @Put(uri = "/update_intent")
+    public HttpResponse<String> postBuyerIntent(@Header String requestId,
+                                                @Header String sessionId,
+                                                @Body String status)
+    {
+        try {
+            intentService.updateBuyerIntentStatus(requestId, sessionId);
+            return HttpResponse.ok();
+        }catch (Exception e){
+            return HttpResponse.badRequest();
+        }
+    }
+
     @Get(uri = "/intent_status")
     public HttpResponse<IntentStatusResponse> getBuyerIntentStatus(@Header String session_id,
                                                                    @Header String order_id,

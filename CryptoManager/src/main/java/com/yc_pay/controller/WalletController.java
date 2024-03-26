@@ -20,8 +20,11 @@ public class WalletController {
     @Get("/wallet")
     public MutableHttpResponse<WalletResponse> getWalletToBuyer(@Header String network,
                                                                 @Header String currency,
-                                                                @Header float amountCrypto)
-    {
-        return HttpResponse.ok(walletService.getWalletToBuyer(network, currency, amountCrypto));
+                                                                @Header float amountCrypto,
+                                                                @Header String requestId,
+                                                                @Header String sessionId) {
+
+            return HttpResponse.ok(walletService.getWalletToBuyer(network, currency, amountCrypto, requestId, sessionId));
+
     }
 }

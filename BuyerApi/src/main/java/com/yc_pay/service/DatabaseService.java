@@ -3,9 +3,9 @@ package com.yc_pay.service;
 import com.yc_pay.model.*;
 import com.yc_pay.model.dbModels.generated.Tables;
 import jakarta.inject.Singleton;
-import org.jooq.DSLContext;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
+import org.jetbrains.annotations.NotNull;
+import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
-import org.jooq.Record;
+
 import static com.yc_pay.model.dbModels.generated.Tables.INTENT;
 import static org.jooq.impl.DSL.row;
 
@@ -72,7 +72,7 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequestDB getIntent(String sessionId, String orderId, String merchant_id) {
+    public static WalletRequestDB getIntentByOrderIdAndMerchantId(String sessionId, String orderId, String merchant_id) {
         WalletRequestDB walletRequestDB = new WalletRequestDB();
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
@@ -96,11 +96,12 @@ public class DatabaseService {
         }
     }
 
-    public static void updateIntentWallet(String merchantId, String requestId, String wallet, int dest_tag) {
+    public static void updateIntentWallet(String merchantId, String requestId, int walletId, String wallet, int dest_tag) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
-            upd.update(INTENT).set(row(INTENT.WALLET_TO, INTENT.DESTINATION_TAG),
-                            row(wallet, dest_tag))
+            upd.update(INTENT)
+                    .set(row(INTENT.WALLET_TO, INTENT.DESTINATION_TAG, INTENT.WALLET_ID),
+                            row(wallet, dest_tag, walletId))
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.MERCHANT_ID.eq(merchantId))
                     .execute();
         } catch (Exception e) {
@@ -108,7 +109,7 @@ public class DatabaseService {
         }
     }
 
-    public static void updateIntentStatus(String merchantId, String requestId, String status) {
+    public static void updateIntentStatusByMerchantIdAndRequestId(String merchantId, String requestId, String status) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
             upd.update(INTENT).set(INTENT.STATUS, status)
@@ -116,6 +117,66 @@ public class DatabaseService {
                     .execute();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void updateIntentStatusBySessionIdAndRequestId(String sessionId, String requestId, String status) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext updateIntentStatusBySessionIdAndRequestId = DSL.using(conn, SQLDialect.POSTGRES);
+            updateIntentStatusBySessionIdAndRequestId.
+                    update(INTENT).set(INTENT.STATUS, status)
+                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
+                    .execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<MerchantPayment> getMerchantPayments(String merchantId) {
+
+        ArrayList<MerchantPayment> merchantPaymentsList = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
+            Result<Record> result = get.select()
+                    .from(INTENT)
+                    .where(INTENT.MERCHANT_ID.eq(merchantId),
+                            INTENT.STATUS.eq("Paid"))
+                    .fetch();
+            conn.close();
+
+            for (Record r : result) {
+                MerchantPayment merchantPayment = new MerchantPayment(r.getValue(INTENT.MERCHANT_ID),
+                        r.getValue(INTENT.REQUEST_ID), r.getValue(INTENT.CURRENCY),
+                        r.getValue(INTENT.AMOUNT_CRYPTO), "USD", r.getValue(INTENT.AMOUNT_FIAT),
+                        r.getValue(INTENT.CREATE_DATE));
+                merchantPaymentsList.add(merchantPayment);
+            }
+            return merchantPaymentsList;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getIntentByOrderIdAndSessionId(String intentId, String sessionId) {
+        String status = null;
+
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
+            @NotNull Result<Record1<String>> result = get.
+                    select(INTENT.STATUS)
+                    .from(INTENT)
+                    .where(INTENT.REQUEST_ID.eq(intentId), INTENT.SESSION_ID.eq(sessionId))
+                    .fetch();
+            conn.close();
+
+            for (Record r : result) {
+                status = r.getValue(INTENT.STATUS);
+            }
+            return status;
+        }
+        catch (Exception e) {
+            return null;
         }
     }
 }

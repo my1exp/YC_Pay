@@ -6,7 +6,7 @@ import com.yc_pay.client.pricer.PricerClient;
 import com.yc_pay.model.IntentRequest;
 import com.yc_pay.model.IntentResponse;
 import com.yc_pay.model.IntentStatusResponse;
-import com.yc_pay.model.WalletRequestDB;
+import com.yc_pay.model.Intent;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -23,23 +23,24 @@ public class IntentService {
 
     public IntentResponse getIntent(String sessionId, String requestId, String merchantId){
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, requestId, merchantId);
+        Intent intent = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, requestId, merchantId);
         // если он есть - создаем кошелек для оплаты
-        if (walletRequestDB.getStatus() != null) {
-            if(walletRequestDB.getWallet() == null) {
+        if (intent.getStatus() != null) {
+            if(intent.getWallet() == null) {
                 //создаем кошелек
                 CryptoManagerWalletResponse cryptoManagerWalletResponse = cryptoManagerClient.getWalletToBuyer(
-                        walletRequestDB.getNetwork(), walletRequestDB.getCurrency(),
-                        walletRequestDB.getAmountCrypto(), requestId, sessionId);
+                        intent.getNetwork(), intent.getCurrency(), intent.getAmountCrypto(),
+                        intent.getAmountFiat(), intent.getMerchant_id(), intent.getRequest_id(),intent.getSession_id());
+                System.out.println(cryptoManagerWalletResponse);
                 //обновляем кошелек в намерении
                 DatabaseService.updateIntentWallet(merchantId, requestId, cryptoManagerWalletResponse.getWalletId(),
                         cryptoManagerWalletResponse.getWallet(), cryptoManagerWalletResponse.getDestination_tag());
                 return new IntentResponse(cryptoManagerWalletResponse.getWallet(), String.valueOf(cryptoManagerWalletResponse.getDestination_tag()),
-                        walletRequestDB.getCurrency(), walletRequestDB.getNetwork(), walletRequestDB.getAmountCrypto());
+                        intent.getCurrency(), intent.getNetwork(), intent.getAmountCrypto());
             }
             else{
-                return new IntentResponse(walletRequestDB.getWallet(), walletRequestDB.getDestination_tag(),
-                        walletRequestDB.getCurrency(), walletRequestDB.getNetwork(), walletRequestDB.getAmountCrypto());
+                return new IntentResponse(intent.getWallet(), intent.getDestination_tag(),
+                        intent.getCurrency(), intent.getNetwork(), intent.getAmountCrypto());
             }
         }else{
             // Если нет интента - возвращаем пустой ответ
@@ -50,10 +51,10 @@ public class IntentService {
 
     public IntentStatusResponse getIntentStatus(String sessionId, String order_id, String merchant_id){
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, order_id, merchant_id);
+        Intent intent = DatabaseService.getIntentByOrderIdAndMerchantId(sessionId, order_id, merchant_id);
         // если он есть - проверяем статус оплаты
-        if (walletRequestDB.getStatus() != null) {
-            return new IntentStatusResponse(walletRequestDB.getStatus());
+        if (intent.getStatus() != null) {
+            return new IntentStatusResponse(intent.getStatus());
         }else{
             return new IntentStatusResponse(); // Если нет интента - возвращаем null
         }
@@ -61,10 +62,10 @@ public class IntentService {
 
     public String postBuyerIntent(String session_id, IntentRequest intentRequest) {
         //проверяем интент в базе
-        WalletRequestDB walletRequestDB = DatabaseService.getIntentByOrderIdAndMerchantId(session_id, intentRequest.getOrder_id(),
+        Intent intent = DatabaseService.getIntentByOrderIdAndMerchantId(session_id, intentRequest.getOrder_id(),
                 intentRequest.getMerchant_id());
         //Если уже есть - говорим, что уже приняли запрос
-        if(walletRequestDB.getStatus() != null){
+        if(intent.getStatus() != null){
             return "!Unique intent";
         }else{
             //проверяем текущую цену

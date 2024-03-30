@@ -12,11 +12,11 @@ import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function5;
+import org.jooq.Function8;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row5;
+import org.jooq.Row8;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -73,6 +73,21 @@ public class TransactionsHash extends TableImpl<TransactionsHashRecord> {
      * The column <code>public.transactions_hash.withdraw_flg</code>.
      */
     public final TableField<TransactionsHashRecord, Integer> WITHDRAW_FLG = createField(DSL.name("withdraw_flg"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>public.transactions_hash.delivered_tx_serv_flg</code>.
+     */
+    public final TableField<TransactionsHashRecord, Integer> DELIVERED_TX_SERV_FLG = createField(DSL.name("delivered_tx_serv_flg"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>public.transactions_hash.sender</code>.
+     */
+    public final TableField<TransactionsHashRecord, String> SENDER = createField(DSL.name("sender"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.transactions_hash.return_to_sender</code>.
+     */
+    public final TableField<TransactionsHashRecord, Integer> RETURN_TO_SENDER = createField(DSL.name("return_to_sender"), SQLDataType.INTEGER, this, "");
 
     private TransactionsHash(Name alias, Table<TransactionsHashRecord> aliased) {
         this(alias, aliased, null);
@@ -157,18 +172,18 @@ public class TransactionsHash extends TableImpl<TransactionsHashRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row8 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row5<String, Integer, Integer, Double, Integer> fieldsRow() {
-        return (Row5) super.fieldsRow();
+    public Row8<String, Integer, Integer, Double, Integer, Integer, String, Integer> fieldsRow() {
+        return (Row8) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function5<? super String, ? super Integer, ? super Integer, ? super Double, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function8<? super String, ? super Integer, ? super Integer, ? super Double, ? super Integer, ? super Integer, ? super String, ? super Integer, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -176,7 +191,7 @@ public class TransactionsHash extends TableImpl<TransactionsHashRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function5<? super String, ? super Integer, ? super Integer, ? super Double, ? super Integer, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function8<? super String, ? super Integer, ? super Integer, ? super Double, ? super Integer, ? super Integer, ? super String, ? super Integer, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

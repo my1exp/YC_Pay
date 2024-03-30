@@ -1,5 +1,6 @@
 package com.yc_pay.client.cryptoManager;
 
+import com.yc_pay.model.Intent;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
 
@@ -10,6 +11,8 @@ public interface CryptoManagerClient {
     CryptoManagerWalletResponse getWalletToBuyer(@Header String network,
                                                  @Header String currency,
                                                  @Header float amountCrypto,
-                                                 @Header String requestId,
-                                                 @Header String sessionId);
+                                                 @Header float amountFiat,
+                                                 @Header String merchant_id,
+                                                 @Header String request_id,
+                                                 @Header String session_id);
 }

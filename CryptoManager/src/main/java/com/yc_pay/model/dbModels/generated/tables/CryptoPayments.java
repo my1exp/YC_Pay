@@ -8,18 +8,19 @@ import com.yc_pay.model.dbModels.generated.Keys;
 import com.yc_pay.model.dbModels.generated.Public;
 import com.yc_pay.model.dbModels.generated.tables.records.CryptoPaymentsRecord;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Function9;
+import org.jooq.Function12;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Records;
-import org.jooq.Row9;
+import org.jooq.Row12;
 import org.jooq.Schema;
 import org.jooq.SelectField;
 import org.jooq.Table;
@@ -96,6 +97,21 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
      * The column <code>public.crypto_payments.session_id</code>.
      */
     public final TableField<CryptoPaymentsRecord, String> SESSION_ID = createField(DSL.name("session_id"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.crypto_payments.create_dttm</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, LocalDateTime> CREATE_DTTM = createField(DSL.name("create_dttm"), SQLDataType.LOCALDATETIME(6), this, "");
+
+    /**
+     * The column <code>public.crypto_payments.merchant_id</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, String> MERCHANT_ID = createField(DSL.name("merchant_id"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.crypto_payments.amount_fiat</code>.
+     */
+    public final TableField<CryptoPaymentsRecord, Double> AMOUNT_FIAT = createField(DSL.name("amount_fiat"), SQLDataType.DOUBLE, this, "");
 
     private CryptoPayments(Name alias, Table<CryptoPaymentsRecord> aliased) {
         this(alias, aliased, null);
@@ -203,18 +219,18 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row12 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Integer, Integer, Integer, Double, String, Integer, Double, Integer, String> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row12<Integer, Integer, Integer, Double, String, Integer, Double, Integer, String, LocalDateTime, String, Double> fieldsRow() {
+        return (Row12) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function12<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? super LocalDateTime, ? super String, ? super Double, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -222,7 +238,7 @@ public class CryptoPayments extends TableImpl<CryptoPaymentsRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function9<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function12<? super Integer, ? super Integer, ? super Integer, ? super Double, ? super String, ? super Integer, ? super Double, ? super Integer, ? super String, ? super LocalDateTime, ? super String, ? super Double, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

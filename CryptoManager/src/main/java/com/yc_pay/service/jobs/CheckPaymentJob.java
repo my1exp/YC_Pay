@@ -1,7 +1,7 @@
 package com.yc_pay.service.jobs;
 
 import com.yc_pay.model.PaymentExists;
-import com.yc_pay.service.BlockChairAPI;
+import com.yc_pay.service.BlockChairAPIService;
 import com.yc_pay.service.DatabaseService;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
@@ -62,7 +62,7 @@ public class CheckPaymentJob extends Thread {
                     //Запрашиваем по каждому адресу кошелька транзакции
                     for (Integer walletId : walletAddressMap.keySet()) {
                         String walletAddress = walletAddressMap.get(walletId);
-                        String response = BlockChairAPI.makeAPICall(walletAddress);
+                        String response = BlockChairAPIService.makeAPICall(walletAddress);
                         JSONObject obj = new JSONObject(response);
                         String response_code = obj.getJSONObject("context").get("code").toString();
 
@@ -77,6 +77,7 @@ public class CheckPaymentJob extends Thread {
                                 String hash = transaction.get("hash").toString();
 
                                 Boolean isHashExists = DatabaseService.isHashExists(walletId, hash);
+                                String senderAddress = transaction.get("Account").toString();
                                 String destination = transaction.get("Destination").toString();
 
                                 if (!isHashExists && destination.equals(walletAddress)) {
@@ -90,14 +91,14 @@ public class CheckPaymentJob extends Thread {
 
                                             if (paymentInfo == null) {
                                                 // Если оплата не найдена, то
-                                                DatabaseService.addNewTransactionHash(walletId, hash, null, received_amount);
+                                                DatabaseService.addNewTransactionHash(walletId, hash, null, received_amount, senderAddress);
                                                 // ToDO создаем проводки в сервисе транзакций, относим на расходы с плюсом
 
                                             }else if(paymentInfo.getPaidAmount() != null &&
                                                     paymentInfo.getRequiredAmount() <= paymentInfo.getPaidAmount() + received_amount) {
                                                 // Если payment найден и
                                                 // необходимая к оплате сумма меньше или равна (текущей + ранее полученных оплат), то
-                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount);
+                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount, senderAddress);
                                                 DatabaseService.updateOfPaymentPaidAmountAndStatus(received_amount +
                                                         paymentInfo.getPaidAmount(), 2, paymentInfo.getPaymentId());
                                                 successPayments.add(paymentInfo.getPaymentId());
@@ -106,7 +107,7 @@ public class CheckPaymentJob extends Thread {
                                                     paymentInfo.getRequiredAmount() <= received_amount) {
                                                 // Если payment найден и необходимая к оплате сумма меньше или равна текущей
                                                 // и ранее полученных оплат не было, то
-                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount);
+                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount, senderAddress);
                                                 DatabaseService.updateOfPaymentPaidAmountAndStatus(received_amount,
                                                         2, paymentInfo.getPaymentId());
                                                 successPayments.add(paymentInfo.getPaymentId());
@@ -115,21 +116,21 @@ public class CheckPaymentJob extends Thread {
                                                     paymentInfo.getRequiredAmount() > received_amount) {
                                                 // Если payment найден и
                                                 // необходимая к оплате сумма больше (текущей + ранее полученных оплат), то
-                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount);
+                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount, senderAddress);
                                                 DatabaseService.updateOfPaymentPaidAmountAndStatus(received_amount +
                                                         paymentInfo.getPaidAmount(), 1, paymentInfo.getPaymentId());
                                                 // ToDO создаем проводки в сервисе транзакций
                                             }else {
                                                 // Если payment найден и
                                                 // необходимая к оплате сумма больше текущей и ранее полученных оплат не было, то
-                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount);
+                                                DatabaseService.addNewTransactionHash(walletId, hash, paymentInfo.getPaymentId(), received_amount, senderAddress);
                                                 DatabaseService.updateOfPaymentPaidAmountAndStatus(received_amount,
                                                         1, paymentInfo.getPaymentId());
                                                 // ToDO создаем проводки в сервисе транзакций
                                             }
                                         }
                                     }catch (Exception e) {
-                                        DatabaseService.addNewTransactionHash(walletId, hash, null, received_amount);
+                                        DatabaseService.addNewTransactionHash(walletId, hash, null, received_amount,senderAddress);
                                         //ToDO учитываем оплату как прибыль на комиссиях
                                     }
                                 }

@@ -1,6 +1,6 @@
 package com.yc_pay.service;
 
-import com.yc_pay.client.xrp.XrpClient;
+import com.yc_pay.model.Intent;
 import com.yc_pay.model.WalletResponse;
 import jakarta.inject.Singleton;
 import org.xrpl.xrpl4j.crypto.keys.Seed;
@@ -15,23 +15,17 @@ import static com.yc_pay.service.DatabaseService.savePaymentFromBuyer;
 @Singleton
 public class WalletService {
 
-    final private XrpClient xrpClient;
-
-    public WalletService(XrpClient xrpClient) {
-        this.xrpClient = xrpClient;
-    }
-
-    public WalletResponse getWalletToBuyer(String network, String currency, float amountCrypto,
-                                           String requestId, String sessionId) {
-        if(currency.equals("XRP") && network.equals("NATIVE")){
-            List<Integer> walletAndTag = DatabaseService.getWalletAndTag(currency, network, amountCrypto);
+    public WalletResponse getWalletToBuyer(Intent intent) {
+        if(intent.getCurrency().equals("XRP") && intent.getNetwork().equals("NATIVE")){
+            List<Integer> walletAndTag = DatabaseService.getWalletAndTag(intent.getCurrency(), intent.getNetwork(), intent.getAmountCrypto());
             if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 100005){
-                int walletId = createWallet(network, currency);
-                savePaymentFromBuyer(walletId, amountCrypto,100000, requestId, sessionId);
+                int walletId = createWallet(intent.getNetwork(), intent.getCurrency());
+                savePaymentFromBuyer(walletId, intent.getAmountCrypto(),100000, intent.getRequest_id(),
+                        intent.getSession_id(), intent.getMerchant_id(), intent.getAmountFiat());
                 return new WalletResponse(walletId, getWalletAddressWithId(walletId),0);
             }else{
-                savePaymentFromBuyer(walletAndTag.get(0), amountCrypto,
-                        walletAndTag.get(1), requestId, sessionId);
+                savePaymentFromBuyer(walletAndTag.get(0), intent.getAmountCrypto(), walletAndTag.get(1),
+                        intent.getRequest_id(), intent.getSession_id(), intent.getMerchant_id(), intent.getAmountFiat());
                 return new WalletResponse(walletAndTag.get(0),
                         getWalletAddressWithId(walletAndTag.get(0)), walletAndTag.get(1));
             }
@@ -58,31 +52,4 @@ public class WalletService {
             return 0;
         }
     }
-
-//    public XrpCheckResponse XrpCheckPayments(HashMap<String, ArrayList<WalletAddress>> payments) {
-//        XrpCheckResponse ClientPayments = xrpClient.checkPayment(payments);
-//        System.out.println(ClientPayments);
-//        return ClientPayments;
-//        }
-//    public StatusResponse getStatusToBuyer(int walletId){
-//
-//        //ходим в базу, забираем адрес и приватный ключ
-////        WalletInfoDB walletInfoDB = DatabaseService.getWalletInfo(walletId);
-//
-////        //проверка блокчейна
-////        System.out.println(walletInfoDB.getAddress());
-////        XrpCurrencyAmount xrpCurrencyAmount = NetworkCheckService.XrpNetworkCheck(walletInfoDB.getAddress());
-////        double currentAmount = (Long.parseLong(xrpCurrencyAmount.toString()) / (Math.pow(10, 6))) - 10.0001;
-////
-////        if(Double.parseDouble(String.valueOf(walletInfoDB.getAmountCrypto())) <= currentAmount){
-////            CryptoTxService.XrpSendToColdWallet(walletInfoDB.getAddress(), walletInfoDB.getPrivateKey(), currentAmount);
-//            return new StatusResponse("Paid");
-//            //ToDo если нашел, то отдельным Thread отправляем на холодный кошелек и передаем данные в сервис Transactions
-//
-//        }else{
-//
-//            System.out.println("Waiting for full payment");
-//            return new StatusResponse("Waiting for full payment");
-//        }
-//    }
 }

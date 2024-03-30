@@ -4,8 +4,6 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Introspected
 @SerdeImport
 @Getter
@@ -14,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 @ToString
-public class WalletRequestDB {
+public class Intent {
     private String network;
     private String currency;
     private String wallet;
@@ -22,4 +20,8 @@ public class WalletRequestDB {
     private String status;
     private String walletId;
     private float amountCrypto;
+    private float amountFiat;
+    private String merchant_id;
+    private String request_id;
+    private String session_id;
 }

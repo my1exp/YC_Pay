@@ -4,8 +4,6 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Introspected
 @SerdeImport
 @Getter
@@ -14,11 +12,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 @ToString
-public class Transaction {
+public class Intent {
+    private String network;
+    private String currency;
+    private float amountCrypto;
+    private float amountFiat;
     private String merchant_id;
-    private String currency_crypto;
-    private Double paid_amount_crypto;
-    private Double required_amount_crypto;
-    private String currency_fiat;
-    private Double amount_fiat;
+    private String request_id;
+    private String session_id;
 }

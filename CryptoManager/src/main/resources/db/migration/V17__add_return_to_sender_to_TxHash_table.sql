@@ -1,0 +1,1 @@
+ALTER TABLE transactions_hash ADD COLUMN return_to_sender integer;

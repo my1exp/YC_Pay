@@ -1,0 +1,1 @@
+insert into pocket (pocket, merchant_id) values ('W70', '1231');

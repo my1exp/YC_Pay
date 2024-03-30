@@ -2,7 +2,7 @@ package com.yc_pay.service.jobs;
 
 import com.yc_pay.model.RequestAndSession;
 import com.yc_pay.service.DatabaseService;
-import com.yc_pay.service.StatusDeliveryService;
+import com.yc_pay.service.delivery.StatusDeliveryService;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;

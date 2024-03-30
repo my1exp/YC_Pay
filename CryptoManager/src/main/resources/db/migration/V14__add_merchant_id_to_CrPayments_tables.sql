@@ -1,0 +1,1 @@
+ALTER TABLE crypto_payments add COLUMN merchant_id varchar(50);

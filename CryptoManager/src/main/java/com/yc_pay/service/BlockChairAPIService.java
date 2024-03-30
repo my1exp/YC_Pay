@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @Singleton
-public class BlockChairAPI {
+public class BlockChairAPIService {
 
     public static String makeAPICall(String walletAddress) throws UriSyntaxException, IOException {
 

@@ -1,6 +1,7 @@
 package com.yc_pay.service;
 
 import com.google.common.primitives.UnsignedInteger;
+import com.yc_pay.model.DetailsForSendXrp;
 import jakarta.inject.Singleton;
 import lombok.SneakyThrows;
 import okhttp3.HttpUrl;
@@ -29,7 +30,11 @@ import java.math.RoundingMode;
 public class CryptoTxService {
 
     @SneakyThrows
-    public static void XrpSendToColdWallet(String addressTO, String privateKeyAddressFrom, Double currentAmount){
+    public static void XrpSendToColdWallet(DetailsForSendXrp detailsForSendXrp) {
+
+        String addressTo = detailsForSendXrp.getAddressTo();
+        String privateKeyAddressFrom = detailsForSendXrp.getPrivateKeyAddressFrom();
+        Double AmountToSend = detailsForSendXrp.getAmountToSend();
 
         HttpUrl rippledUrl = HttpUrl.get("https://xrplcluster.com/");
         XrplClient xrplClient = new XrplClient(rippledUrl);
@@ -73,8 +78,8 @@ public class CryptoTxService {
 
         Payment payment = Payment.builder()
                 .account(Address.of(seed.deriveKeyPair().publicKey().deriveAddress().toString()))
-                .amount(XrpCurrencyAmount.ofXrp(BigDecimal.valueOf(currentAmount - 10.001).setScale(6, RoundingMode.CEILING)))
-                .destination(Address.of(addressTO))
+                .amount(XrpCurrencyAmount.ofXrp(BigDecimal.valueOf(AmountToSend - 0.00001).setScale(6, RoundingMode.CEILING)))
+                .destination(Address.of(addressTo))
                 .sequence(sequence)
                 .fee(openLedgerFee)
                 .signingPublicKey(seed.deriveKeyPair().publicKey())

@@ -72,8 +72,8 @@ public class DatabaseService {
         }
     }
 
-    public static WalletRequestDB getIntentByOrderIdAndMerchantId(String sessionId, String orderId, String merchant_id) {
-        WalletRequestDB walletRequestDB = new WalletRequestDB();
+    public static Intent getIntentByOrderIdAndMerchantId(String sessionId, String orderId, String merchant_id) {
+        Intent intent = new Intent();
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()
@@ -84,12 +84,13 @@ public class DatabaseService {
             conn.close();
 
             for (Record r : result) {
-                walletRequestDB = new WalletRequestDB(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
+                intent = new Intent(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
                         r.getValue(INTENT.WALLET_TO), String.valueOf(r.getValue(Optional.ofNullable(INTENT.DESTINATION_TAG).orElse(null))),
                         r.getValue(INTENT.STATUS), String.valueOf(r.getValue(Optional.ofNullable(INTENT.WALLET_ID).orElse(null))),
-                        r.getValue(INTENT.AMOUNT_CRYPTO).floatValue());
+                        r.getValue(INTENT.AMOUNT_CRYPTO).floatValue(), r.getValue(INTENT.AMOUNT_FIAT).floatValue(),
+                        r.getValue(INTENT.MERCHANT_ID), r.getValue(INTENT.REQUEST_ID), r.getValue(INTENT.SESSION_ID));
             }
-            return walletRequestDB;
+            return intent;
         }
         catch (Exception e) {
             return null;

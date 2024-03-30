@@ -4,6 +4,8 @@
 package com.yc_pay.model.dbModels.generated;
 
 
+import com.yc_pay.model.dbModels.generated.tables.Entries;
+import com.yc_pay.model.dbModels.generated.tables.Pocket;
 import com.yc_pay.model.dbModels.generated.tables.Transaction;
 
 import java.util.Arrays;
@@ -28,6 +30,16 @@ public class Public extends SchemaImpl {
     public static final Public PUBLIC = new Public();
 
     /**
+     * The table <code>public.entries</code>.
+     */
+    public final Entries ENTRIES = Entries.ENTRIES;
+
+    /**
+     * The table <code>public.pocket</code>.
+     */
+    public final Pocket POCKET = Pocket.POCKET;
+
+    /**
      * The table <code>public.transaction</code>.
      */
     public final Transaction TRANSACTION = Transaction.TRANSACTION;
@@ -48,6 +60,8 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            Entries.ENTRIES,
+            Pocket.POCKET,
             Transaction.TRANSACTION
         );
     }

@@ -1,7 +1,9 @@
 package com.yc_pay.service;
 
+import com.yc_pay.model.DetailsForSendXrp;
 import com.yc_pay.model.PaymentExists;
 import com.yc_pay.model.RequestAndSession;
+import com.yc_pay.model.TransactionToTxService;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
@@ -56,7 +58,7 @@ public class DatabaseService {
     }
 
     public static void savePaymentFromBuyer(int wallet_id, float amount_crypto,
-                                            int tag, String requestId, String sessionId) {
+                                            int tag, String requestId, String sessionId, String merchant_id, double amount_fiat) {
 
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext postIntent = DSL.using(conn, SQLDialect.POSTGRES);
@@ -64,8 +66,10 @@ public class DatabaseService {
                     .insertInto(CRYPTO_PAYMENTS, CRYPTO_PAYMENTS.CRYPTO_WALLET_ID,
                             CRYPTO_PAYMENTS.STATUS, CRYPTO_PAYMENTS.AMOUNT_CRYPTO,
                             CRYPTO_PAYMENTS.DESTINATION_TAG, CRYPTO_PAYMENTS.REQUEST_ID,
-                            CRYPTO_PAYMENTS.SESSION_ID)
-                    .values(wallet_id, 1, Double.valueOf(amount_crypto), tag, requestId, sessionId)
+                            CRYPTO_PAYMENTS.SESSION_ID, CRYPTO_PAYMENTS.CREATE_DTTM,
+                            CRYPTO_PAYMENTS.MERCHANT_ID, CRYPTO_PAYMENTS.AMOUNT_FIAT)
+                    .values(wallet_id, 1, Double.valueOf(amount_crypto), tag, requestId, sessionId,
+                            LocalDateTime.now(), merchant_id, amount_fiat)
                     .execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -198,14 +202,16 @@ public class DatabaseService {
         }
     }
 
-    public static void addNewTransactionHash(Integer walletId, String hash, Integer cryptoPaymentId, Double receivedAmount) {
+    public static void addNewTransactionHash(Integer walletId, String hash, Integer cryptoPaymentId,
+                                             Double receivedAmount, String senderAddress) {
 
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext AddNewTransactionHash = DSL.using(conn, SQLDialect.POSTGRES);
             AddNewTransactionHash
                     .insertInto(TRANSACTIONS_HASH, TRANSACTIONS_HASH.CRYPTO_WALLET_ID,
-                            TRANSACTIONS_HASH.HASH, TRANSACTIONS_HASH.PAYMENT_ID, TRANSACTIONS_HASH.RECEIVED_AMOUNT)
-                    .values(walletId, hash, cryptoPaymentId, receivedAmount)
+                            TRANSACTIONS_HASH.HASH, TRANSACTIONS_HASH.PAYMENT_ID,
+                            TRANSACTIONS_HASH.RECEIVED_AMOUNT, TRANSACTIONS_HASH.SENDER)
+                    .values(walletId, hash, cryptoPaymentId, receivedAmount, senderAddress)
                     .execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -304,8 +310,8 @@ public class DatabaseService {
             if (!result.isEmpty()) {
                 for (Record r : result) {
                     Double receivedAmount = null;
-                    if (r.getValue(String.valueOf("sum")) instanceof Number) {
-                        receivedAmount = ((Number) r.getValue(String.valueOf("sum"))).doubleValue();
+                    if (r.getValue("sum") instanceof Number) {
+                        receivedAmount = ((Number) r.getValue("sum")).doubleValue();
                     }
 
                     if (receivedAmount > 10.001) {
@@ -333,27 +339,145 @@ public class DatabaseService {
         }
     }
 
+    public static ArrayList<TransactionToTxService> getUndeliveredTransactions(Boolean identified){
+        ArrayList<TransactionToTxService> unidentifiedTransactions = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            if (!identified){
+                DSLContext getUnidentifiedTransactions = DSL.using(conn, SQLDialect.POSTGRES);
+                Result<Record> result = getUnidentifiedTransactions.
+                        select()
+                        .from(TRANSACTIONS_HASH)
+                        .where(TRANSACTIONS_HASH.PAYMENT_ID.isNull(), TRANSACTIONS_HASH.DELIVERED_TX_SERV_FLG.isNull())
+                        .fetch();
+                conn.close();
+                for (Record r : result) {
+                    TransactionToTxService transactionToTxService = new TransactionToTxService(null, "XRP",
+                            r.getValue(TRANSACTIONS_HASH.RECEIVED_AMOUNT), null, null, null,
+                            r.getValue(TRANSACTIONS_HASH.HASH));
+                    unidentifiedTransactions.add(transactionToTxService);
+                }
+                return unidentifiedTransactions;
 
+            }else{
+                DSLContext getUnidentifiedTransactions = DSL.using(conn, SQLDialect.POSTGRES);
+                @NotNull Result<Record9<String, Integer, String, Double, Double, Double, String, Integer, String>> result = getUnidentifiedTransactions.
+                        select(TRANSACTIONS_HASH.HASH, TRANSACTIONS_HASH.PAYMENT_ID,CRYPTO_PAYMENTS.MERCHANT_ID, CRYPTO_PAYMENTS.PAID_AMOUNT,
+                                CRYPTO_PAYMENTS.AMOUNT_CRYPTO, CRYPTO_PAYMENTS.AMOUNT_FIAT, CRYPTO_WALLETS.CURRENCY_CRYPTO,
+                                CRYPTO_PAYMENTS.CRYPTO_WALLET_ID,
+                                CRYPTO_WALLETS.ADDRESS)
+                        .from(TRANSACTIONS_HASH)
+                        .leftJoin(CRYPTO_PAYMENTS).on(CRYPTO_PAYMENTS.ID.eq(TRANSACTIONS_HASH.PAYMENT_ID))
+                        .leftJoin(CRYPTO_WALLETS).on(CRYPTO_PAYMENTS.CRYPTO_WALLET_ID.eq(CRYPTO_WALLETS.ID))
+                        .where(TRANSACTIONS_HASH.PAYMENT_ID.isNotNull(), TRANSACTIONS_HASH.DELIVERED_TX_SERV_FLG.isNull())
+                        .fetch();
+                conn.close();
 
-//    public static WalletInfoDB getWalletInfo(int walletId){
-//        WalletInfoDB walletInfoDB = new WalletInfoDB();
-//        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
-//            DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
-//            Result<Record> result = get.select()
-//                    .from(CRYPTO_WALLETS)
-//                    .where(CRYPTO_WALLETS.ID.eq(walletId))
-//                    .fetch();
-//            conn.close();
-//
-//            for (Record r : result) {
-//                walletInfoDB = new WalletInfoDB(r.getValue(CRYPTO_WALLETS.ADDRESS),
-//                        r.getValue(CRYPTO_WALLETS.PRIVATE_KEY), r.getValue(CRYPTO_WALLETS.AMOUNT_CRYPTO));
-//            }
-//            return walletInfoDB;
-//        }
-//        catch (SQLException e) {
-//            e.printStackTrace();
-//            return walletInfoDB;
-//        }
-//    }
+                for (Record r : result) {
+                    if (r.getValue(CRYPTO_PAYMENTS.PAID_AMOUNT) >= r.getValue(CRYPTO_PAYMENTS.AMOUNT_CRYPTO)){
+                        TransactionToTxService transactionToTxService = new TransactionToTxService(r.getValue(CRYPTO_PAYMENTS.MERCHANT_ID),
+                                r.getValue(CRYPTO_WALLETS.CURRENCY_CRYPTO), r.getValue(CRYPTO_PAYMENTS.PAID_AMOUNT),
+                                r.getValue(CRYPTO_PAYMENTS.AMOUNT_CRYPTO), "USD", r.getValue(CRYPTO_PAYMENTS.AMOUNT_FIAT),
+                                r.getValue(TRANSACTIONS_HASH.HASH));
+                        unidentifiedTransactions.add(transactionToTxService);
+                    }
+                    System.out.println(unidentifiedTransactions);
+
+                }
+                return unidentifiedTransactions;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void markTransactionAsDelivered(String hash) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext markTransactionAsDelivered = DSL.using(conn, SQLDialect.POSTGRES);
+            markTransactionAsDelivered
+                    .update(TRANSACTIONS_HASH)
+                    .set(TRANSACTIONS_HASH.DELIVERED_TX_SERV_FLG, 1)
+                    .where(TRANSACTIONS_HASH.HASH.eq(hash))
+                    .execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ArrayList<Integer> getPaymentsListToReturn() {
+        ArrayList<Integer> paymentsListToReturn = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext getPaymentsListToReturn = DSL.using(conn, SQLDialect.POSTGRES);
+            @NotNull Result<Record2<Integer, LocalDateTime>> result =
+                    getPaymentsListToReturn
+                            .select(CRYPTO_PAYMENTS.ID, CRYPTO_PAYMENTS.CREATE_DTTM.add(1))
+                            .from(CRYPTO_PAYMENTS)
+                            .leftJoin(TRANSACTIONS_HASH).on(TRANSACTIONS_HASH.PAYMENT_ID.eq(CRYPTO_PAYMENTS.ID))
+                            .where(CRYPTO_PAYMENTS.PAID_AMOUNT.lessThan(CRYPTO_PAYMENTS.AMOUNT_CRYPTO),
+                                    TRANSACTIONS_HASH.RETURN_TO_SENDER.isNull(),
+                                    TRANSACTIONS_HASH.PAYMENT_ID.isNotNull(),
+                                    CRYPTO_PAYMENTS.PAID_AMOUNT.isNotNull(),
+                                    currentLocalDateTime().greaterThan(CRYPTO_PAYMENTS.CREATE_DTTM.add(1))
+                            )
+                            .fetch();
+            conn.close();
+
+            System.out.println(result);
+
+            if (result.size() > 0) {
+                for (Record r : result) {
+                    Integer paymentId = r.getValue(CRYPTO_PAYMENTS.ID);
+                    paymentsListToReturn.add(paymentId);
+                }
+            }
+            return paymentsListToReturn;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void markTransactionsAsReturnedToUser(int paymentId) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext markTransactionsAsReturnedToUser = DSL.using(conn, SQLDialect.POSTGRES);
+            markTransactionsAsReturnedToUser
+                    .update(TRANSACTIONS_HASH)
+                    .set(TRANSACTIONS_HASH.RETURN_TO_SENDER, 1)
+                    .where(TRANSACTIONS_HASH.PAYMENT_ID.eq(paymentId))
+                    .execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ArrayList<DetailsForSendXrp> getDetailsForReturnXrpToUser(ArrayList<Integer> paymentsListToReturn) {
+        ArrayList<DetailsForSendXrp> detailsListForSendXrp = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            for (Integer paymentId : paymentsListToReturn) {
+                DSLContext getPaymentsListToReturn = DSL.using(conn, SQLDialect.POSTGRES);
+                @NotNull Result<Record4<String, Integer, String, BigDecimal>> result =
+                        getPaymentsListToReturn
+                                .select(TRANSACTIONS_HASH.SENDER, TRANSACTIONS_HASH.PAYMENT_ID, CRYPTO_WALLETS.PRIVATE_KEY, sum(TRANSACTIONS_HASH.RECEIVED_AMOUNT).as(TRANSACTIONS_HASH.RECEIVED_AMOUNT))
+                                .from(CRYPTO_PAYMENTS)
+                                .leftJoin(TRANSACTIONS_HASH).on(TRANSACTIONS_HASH.PAYMENT_ID.eq(CRYPTO_PAYMENTS.ID))
+                                .leftJoin(CRYPTO_WALLETS).on(CRYPTO_PAYMENTS.CRYPTO_WALLET_ID.eq(CRYPTO_WALLETS.ID))
+                                .where(TRANSACTIONS_HASH.PAYMENT_ID.eq(paymentId))
+                                .groupBy(TRANSACTIONS_HASH.SENDER, TRANSACTIONS_HASH.PAYMENT_ID, CRYPTO_WALLETS.PRIVATE_KEY)
+                                .fetch();
+                conn.close();
+
+                for (Record r : result) {
+                    double receivedAmount = Double.parseDouble(String.valueOf(r.getValue(TRANSACTIONS_HASH.RECEIVED_AMOUNT))) - 10;
+                    if (receivedAmount > 0.00001) {
+                    DetailsForSendXrp detailsForSendXrp = new DetailsForSendXrp(r.getValue(TRANSACTIONS_HASH.SENDER),
+                            r.getValue(CRYPTO_WALLETS.PRIVATE_KEY), receivedAmount);
+                    detailsListForSendXrp.add(detailsForSendXrp);
+                    }
+                }
+            }
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return detailsListForSendXrp;
+    }
 }

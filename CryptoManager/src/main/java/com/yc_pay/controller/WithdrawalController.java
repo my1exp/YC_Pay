@@ -21,11 +21,14 @@ public class WithdrawalController {
     public HttpResponse<String> getWalletToBuyer(@Header String address) {
         if (address.isEmpty()) {
             return HttpResponse.badRequest("Address is empty");
-        }else if(withdrawalService.withdrawToAddress(address).equals("No wallets to withdraw from")) {
-            return HttpResponse.badRequest("No wallets to withdraw from");
-        }else if(withdrawalService.withdrawToAddress(address).equals("Ok")) {
-            return HttpResponse.ok("Ok");
+        }else {
+            String withdrawStatus = withdrawalService.withdrawToAddress(address);
+            if (withdrawStatus.equals("No wallets to withdraw from")) {
+                return HttpResponse.badRequest("No wallets to withdraw from");
+            } else if (withdrawStatus.equals("Ok")) {
+                return HttpResponse.ok("Ok");
+            }
+            return null;
         }
-        return null;
     }
 }

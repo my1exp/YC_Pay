@@ -4,6 +4,8 @@
 package com.yc_pay.model.dbModels.generated;
 
 
+import com.yc_pay.model.dbModels.generated.tables.Entries;
+import com.yc_pay.model.dbModels.generated.tables.Pocket;
 import com.yc_pay.model.dbModels.generated.tables.Transaction;
 
 
@@ -12,6 +14,16 @@ import com.yc_pay.model.dbModels.generated.tables.Transaction;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
+
+    /**
+     * The table <code>public.entries</code>.
+     */
+    public static final Entries ENTRIES = Entries.ENTRIES;
+
+    /**
+     * The table <code>public.pocket</code>.
+     */
+    public static final Pocket POCKET = Pocket.POCKET;
 
     /**
      * The table <code>public.transaction</code>.

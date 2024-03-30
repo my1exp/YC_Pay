@@ -14,11 +14,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 @ToString
-public class Transaction {
+public class TransactionToTxService {
     private String merchant_id;
     private String currency_crypto;
     private Double paid_amount_crypto;
     private Double required_amount_crypto;
     private String currency_fiat;
     private Double amount_fiat;
+    private String hash;
 }

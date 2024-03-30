@@ -1,5 +1,6 @@
 package com.yc_pay.service;
 
+import com.yc_pay.model.DetailsForSendXrp;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
@@ -18,7 +19,8 @@ public class WithdrawalService {
                 try {
                     String privateKey = DatabaseService.getWalletPrivateKeyWithId(walletId);
                     if (privateKey != null) {
-                        CryptoTxService.XrpSendToColdWallet(address, privateKey, walletsToWithdraw.get(walletId));
+                        DetailsForSendXrp detailsForSendXrp = new DetailsForSendXrp(address, privateKey, walletsToWithdraw.get(walletId) - 10.001);
+                        CryptoTxService.XrpSendToColdWallet(detailsForSendXrp);
                         log.info("Withdrawal to address: " + address);
                     }
                     DatabaseService.updateWithdrawFlag(walletId, 2);

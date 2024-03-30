@@ -11,7 +11,6 @@ import org.xrpl.xrpl4j.model.transactions.XrpCurrencyAmount;
 
 @Singleton
 public class NetworkCheckService {
-
     @SneakyThrows
     public static XrpCurrencyAmount XrpNetworkCheck(String address){
 

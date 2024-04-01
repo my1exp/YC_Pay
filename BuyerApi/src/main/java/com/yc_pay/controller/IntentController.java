@@ -52,8 +52,7 @@ public class IntentController {
 
     @Put(uri = "/update_intent")
     public HttpResponse<String> postBuyerIntent(@Header String requestId,
-                                                @Header String sessionId,
-                                                @Body String status)
+                                                @Header String sessionId)
     {
         try {
             intentService.updateBuyerIntentStatus(requestId, sessionId);

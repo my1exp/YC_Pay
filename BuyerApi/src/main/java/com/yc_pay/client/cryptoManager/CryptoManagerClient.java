@@ -1,6 +1,5 @@
 package com.yc_pay.client.cryptoManager;
 
-import com.yc_pay.model.Intent;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
 

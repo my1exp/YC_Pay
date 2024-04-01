@@ -9,6 +9,8 @@ import com.yc_pay.model.IntentStatusResponse;
 import com.yc_pay.model.Intent;
 import jakarta.inject.Singleton;
 
+import java.util.Objects;
+
 @Singleton
 public class IntentService {
 
@@ -84,12 +86,10 @@ public class IntentService {
         }
     }
 
-    public String updateBuyerIntentStatus(String orderId, String sessionId) {
-
+    public void updateBuyerIntentStatus(String orderId, String sessionId) {
         String status = DatabaseService.getIntentByOrderIdAndSessionId(orderId, sessionId);
-        if(status.equals("Created")){
+        if(Objects.requireNonNull(status).equals("Created")){
             DatabaseService.updateIntentStatusBySessionIdAndRequestId(sessionId, orderId, "Paid");
         }
-        return "Ok";
     }
 }

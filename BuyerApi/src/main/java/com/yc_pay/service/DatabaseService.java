@@ -3,6 +3,7 @@ package com.yc_pay.service;
 import com.yc_pay.model.*;
 import com.yc_pay.model.dbModels.generated.Tables;
 import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
@@ -13,13 +14,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static com.yc_pay.model.dbModels.generated.Tables.INTENT;
 import static org.jooq.impl.DSL.row;
 
 
 @Singleton
+@Slf4j(topic = "DatabaseService")
 public class DatabaseService {
     public static String userName = "postgres";
     public static String password = "1234";
@@ -48,7 +49,7 @@ public class DatabaseService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in getCurrenciesCrypto: {}", e.getMessage());
         }
         return currencyCryptoList;
     }
@@ -68,7 +69,7 @@ public class DatabaseService {
                     .execute();
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error in postBuyerIntent: {}", e.getMessage());
         }
     }
 
@@ -78,15 +79,16 @@ public class DatabaseService {
             DSLContext get = DSL.using(conn, SQLDialect.POSTGRES);
             Result<Record> result = get.select()
                     .from(INTENT)
-                    .where(INTENT.REQUEST_ID.eq(orderId)
-                            , INTENT.MERCHANT_ID.eq(merchant_id))
+                    .where(INTENT.REQUEST_ID.eq(orderId),
+                            INTENT.MERCHANT_ID.eq(merchant_id),
+                            INTENT.SESSION_ID.eq(sessionId))
                     .fetch();
             conn.close();
 
             for (Record r : result) {
                 intent = new Intent(r.getValue(INTENT.NETWORK), r.getValue(INTENT.CURRENCY),
-                        r.getValue(INTENT.WALLET_TO), String.valueOf(r.getValue(Optional.ofNullable(INTENT.DESTINATION_TAG).orElse(null))),
-                        r.getValue(INTENT.STATUS), String.valueOf(r.getValue(Optional.ofNullable(INTENT.WALLET_ID).orElse(null))),
+                        r.getValue(INTENT.WALLET_TO), String.valueOf(r.getValue(INTENT.DESTINATION_TAG)),
+                        r.getValue(INTENT.STATUS), String.valueOf(r.getValue(INTENT.WALLET_ID)),
                         r.getValue(INTENT.AMOUNT_CRYPTO).floatValue(), r.getValue(INTENT.AMOUNT_FIAT).floatValue(),
                         r.getValue(INTENT.MERCHANT_ID), r.getValue(INTENT.REQUEST_ID), r.getValue(INTENT.SESSION_ID));
             }
@@ -106,18 +108,7 @@ public class DatabaseService {
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.MERCHANT_ID.eq(merchantId))
                     .execute();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void updateIntentStatusByMerchantIdAndRequestId(String merchantId, String requestId, String status) {
-        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
-            DSLContext upd = DSL.using(conn, SQLDialect.POSTGRES);
-            upd.update(INTENT).set(INTENT.STATUS, status)
-                    .where(INTENT.REQUEST_ID.eq(requestId), INTENT.MERCHANT_ID.eq(merchantId))
-                    .execute();
-        } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in updateIntentWallet: {}", e.getMessage());
         }
     }
 
@@ -129,7 +120,7 @@ public class DatabaseService {
                     .where(INTENT.REQUEST_ID.eq(requestId), INTENT.SESSION_ID.eq(sessionId))
                     .execute();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in updateIntentStatusBySessionIdAndRequestId: {}", e.getMessage());
         }
     }
 

@@ -16,8 +16,8 @@ public class MerchantPaymentsController {
         this.databaseService = databaseService;
     }
 
-    @Get("/{merchantId}/payments")
-    public ArrayList<MerchantPayment> getMerchantPayments(@PathVariable String merchantId) {
-        return DatabaseService.getMerchantPayments(merchantId);
+    @Get("/{merchant_Id}/payments")
+    public ArrayList<MerchantPayment> getMerchantPayments(@PathVariable String merchant_Id) {
+        return DatabaseService.getMerchantPayments(merchant_Id);
     }
 }

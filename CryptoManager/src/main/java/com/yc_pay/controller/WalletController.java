@@ -22,13 +22,13 @@ public class WalletController {
     @Get(uri = "/wallet", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     public MutableHttpResponse<WalletResponse> getWalletToBuyer(@Header String network,
                                                                 @Header String currency,
-                                                                @Header float amountCrypto,
-                                                                @Header float amountFiat,
+                                                                @Header float amount_crypto,
+                                                                @Header float amount_fiat,
                                                                 @Header String merchant_id,
                                                                 @Header String request_id,
                                                                 @Header String session_id) {
 
-        Intent intent = new Intent(network, currency, amountCrypto, amountFiat, merchant_id, request_id, session_id);
+        Intent intent = new Intent(network, currency, amount_crypto, amount_fiat, merchant_id, request_id, session_id);
         return HttpResponse.ok(walletService.getWalletToBuyer(intent));
     }
 }

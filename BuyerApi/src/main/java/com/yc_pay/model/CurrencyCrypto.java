@@ -16,5 +16,4 @@ import java.util.ArrayList;
 public class CurrencyCrypto {
     private String name;
     private ArrayList<Network> networkList;
-
 }

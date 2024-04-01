@@ -18,7 +18,6 @@ public class MerchantPaymentsController {
 
     @Get("/{merchantId}/payments")
     public ArrayList<MerchantPayment> getMerchantPayments(@PathVariable String merchantId) {
-
         return DatabaseService.getMerchantPayments(merchantId);
     }
 }

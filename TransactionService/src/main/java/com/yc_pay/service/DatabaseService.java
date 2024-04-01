@@ -419,11 +419,7 @@ public class DatabaseService {
                             .fetch();
             conn.close();
 
-            if (result.isEmpty()) {
-                return false;
-            }else{
-                return true;
-            }
+            return !result.isEmpty();
 
         } catch (Exception ex) {
             log.error("Failed to check pocket exists" + ex.getMessage());

@@ -33,7 +33,6 @@ public class PricerController {
     @Get(uri = "/getMarketPriceCrypto", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<Double> getMarketPriceCrypto(@Header String currency_crypto) {
         try {
-            System.out.println(pricerService.getMarketPriceCrypto(currency_crypto));
             return HttpResponse.ok(pricerService.getMarketPriceCrypto(currency_crypto));
         } catch (Exception e) {
             return HttpResponse.notFound();

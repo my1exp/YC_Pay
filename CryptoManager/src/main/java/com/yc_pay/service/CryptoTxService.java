@@ -34,7 +34,7 @@ public class CryptoTxService {
 
         String addressTo = detailsForSendXrp.getAddressTo();
         String privateKeyAddressFrom = detailsForSendXrp.getPrivateKeyAddressFrom();
-        Double AmountToSend = detailsForSendXrp.getAmountToSend();
+        double AmountToSend = detailsForSendXrp.getAmountToSend();
 
         HttpUrl rippledUrl = HttpUrl.get("https://xrplcluster.com/");
         XrplClient xrplClient = new XrplClient(rippledUrl);
@@ -42,8 +42,8 @@ public class CryptoTxService {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         String[] pk = privateKeyAddressFrom.substring(1).replaceAll("]", "").split(", ");
 
-        for (int i = 0; i < pk.length; i++) {
-            output.write(Integer.parseInt(pk[i]));
+        for (String string : pk) {
+            output.write(Integer.parseInt(string));
         }
         byte[] out = output.toByteArray();
 

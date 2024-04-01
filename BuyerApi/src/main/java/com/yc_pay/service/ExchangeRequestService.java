@@ -19,10 +19,6 @@ public class ExchangeRequestService {
     public ExchangeResponse returnAmountFiat(String currencyCrypto,
                                              float amountFiat,
                                              String currencyFiat){
-        //ToDo должен ходить в базу и смотреть есть ли такие currencyCrypto и currencyFiat ??
-        // как он сможет выбрать что-то другое, если мы ему отдаем конкретный список
-        // Если только проверка на дурака
-
         float amountCrypto = pricerClient.getPriceToBuyer(currencyCrypto, amountFiat, currencyFiat).getAmountCrypto();
         amountCrypto = (float) (amountCrypto * 1.025);
         MathContext context = new MathContext(5, RoundingMode.HALF_UP);

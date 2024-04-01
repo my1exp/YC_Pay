@@ -31,6 +31,5 @@ public class WalletController {
 
         Intent intent = new Intent(network, currency, amountCrypto, amountFiat, merchant_id, request_id, session_id);
         return HttpResponse.ok(walletService.getWalletToBuyer(intent));
-
     }
 }

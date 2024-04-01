@@ -1,7 +1,10 @@
 package com.yc_pay.service;
 
 import com.yc_pay.Api.CryptoCurrency;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.env.Environment;
 import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -16,11 +19,14 @@ import static com.yc_pay.model.dbModels.generated.Tables.CRYPTOPRICE;
 import static org.jooq.impl.DSL.row;
 
 @Singleton
+@Slf4j
 public class DatabaseService {
 
-    public static String userName = "postgres";
-    public static String password = "1234";
-    public static String url = "jdbc:postgresql://localhost:5432/Pricer";
+    static ApplicationContext applicationContext = ApplicationContext.run();
+    static Environment environment = applicationContext.getEnvironment();
+    static String url = environment.getProperty("db.url", String.class).get();
+    static String userName = environment.getProperty("db.username", String.class).get();
+    static String password = environment.getProperty("db.password", String.class).get();
 
     public static BigDecimal getPrice(String currencyCrypto) {
 
@@ -41,7 +47,7 @@ public class DatabaseService {
             return price;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             return null;
         }
     }

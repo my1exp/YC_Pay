@@ -17,7 +17,7 @@ public class WalletService {
 
     public WalletResponse getWalletToBuyer(Intent intent) {
         if(intent.getCurrency().equals("XRP") && intent.getNetwork().equals("NATIVE")){
-            List<Integer> walletAndTag = DatabaseService.getWalletAndTag(intent.getCurrency(), intent.getNetwork(), intent.getAmountCrypto());
+            List<Integer> walletAndTag = DatabaseService.getWalletAndTag(intent.getCurrency(), intent.getNetwork());
             if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 100005){
                 int walletId = createWallet(intent.getNetwork(), intent.getCurrency());
                 savePaymentFromBuyer(walletId, intent.getAmountCrypto(),100000, intent.getRequest_id(),
@@ -36,8 +36,7 @@ public class WalletService {
 
     public Integer createWallet(String network, String currency) {
         if(currency.equals("XRP") && network.equals("NATIVE")){
-//            Создание одноразового кошелька и запись в таблицу с кошельками
-
+//          Создание одноразового кошелька и запись в таблицу с кошельками
 //          генерация рандомного byte[16]
             final byte[] privateKey = new byte[16];
             ThreadLocalRandom.current().nextBytes(privateKey);

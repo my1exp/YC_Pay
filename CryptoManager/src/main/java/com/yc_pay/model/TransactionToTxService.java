@@ -4,8 +4,6 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.SerdeImport;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Introspected
 @SerdeImport
 @Getter

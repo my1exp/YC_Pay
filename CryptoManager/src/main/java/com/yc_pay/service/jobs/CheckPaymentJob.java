@@ -147,7 +147,7 @@ public class CheckPaymentJob extends Thread {
                 log.info("checkPaymentJob executed");
                 Thread.sleep(1000 * 60 * 2); // 2 minutes
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             } catch (InterruptedException | IOException e) {
                 throw new RuntimeException(e);
             }

@@ -1,9 +1,11 @@
 package com.yc_pay.service;
 
+import com.yc_pay.model.Entry;
 import com.yc_pay.model.Transaction;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Singleton
@@ -78,6 +80,47 @@ public class TransactionService {
             return "Ok";
         }else{
             return "Not Enough for requested Payment";
+        }
+    }
+
+    public String createPocketForMerchant(String merchantId) {
+        //Проверка на наличие покета у мерчанта
+        String pocketName = databaseService.checkPocketExistsByMerchantId(merchantId);
+        if(pocketName != null){
+            log.info("Merchant's pocket " + pocketName + " already exists");
+            return "Merchant's pocket " + pocketName + " already exists";
+        }else{
+            //Создание нового покета
+            log.info("Try to create new Pocket For Merchant " + merchantId);
+            databaseService.createPocketForMerchant(merchantId);
+            log.info("Success created Pocket For Merchant " + merchantId);
+            return "Ok";
+        }
+    }
+
+    public ArrayList<Entry> getEntriesForPocket(String pocket) {
+        Boolean pocketExists = databaseService.checkPocketExistsByPocket(pocket);
+        if(pocketExists){
+            log.info("Try to get Entries For Pocket " + pocket);
+            ArrayList<Entry> entries = databaseService.getEntriesForPocket(pocket);
+            log.info("Success get Entries For Pocket " + pocket);
+            return entries;
+        }else{
+            log.info("Pocket doesn't exist");
+            return null;
+        }
+    }
+
+    public ArrayList<Entry> getEntriesForMerchant(String merchantId) {
+        String pocketName = databaseService.checkPocketExistsByMerchantId(merchantId);
+        if(pocketName!= null){
+            log.info("Try to get Entries For Merchant " + merchantId + ", pocket - " + pocketName);
+            ArrayList<Entry> entries = databaseService.getEntriesForPocket(pocketName);
+            log.info("Success get Entries For Merchant " + merchantId);
+            return entries;
+        }else{
+            log.info("Pocket doesn't exist");
+            return null;
         }
     }
 }

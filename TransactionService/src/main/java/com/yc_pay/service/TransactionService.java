@@ -1,12 +1,9 @@
 package com.yc_pay.service;
 
 import com.yc_pay.model.Transaction;
-import com.yc_pay.model.TransactionResponse;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Singleton
@@ -19,28 +16,24 @@ public class TransactionService {
         this.databaseService = databaseService;
     }
 
-    public ArrayList<TransactionResponse> getUserTransaction(String merchantId){
-        return databaseService.getTransactionFromUser(merchantId);
-    }
-
     public void createEntriesForIdentifiedTransaction(Transaction transaction){
         log.info("Try to create Entries For Transaction " + transaction.getPaid_amount_crypto()
                 + " " + transaction.getCurrency_crypto());
-        databaseService.createEntryForAnyTransaction(transaction.getPaid_amount_crypto(), transaction.getCurrency_crypto());
+        DatabaseService.createEntryForAnyTransaction(transaction.getPaid_amount_crypto(), transaction.getCurrency_crypto());
 
         log.info("Try to create Entries for Identified Transaction " + transaction.getPaid_amount_crypto()
                 + " " + transaction.getCurrency_crypto());
-        databaseService.createEntryForIdentifiedTransaction(transaction);
+        DatabaseService.createEntryForIdentifiedTransaction(transaction);
         log.info("Success created Entries for identified Transaction " + transaction.getPaid_amount_crypto()
                 + " " + transaction.getCurrency_crypto());
     }
 
     public void createEntriesForUnidentifiedTransaction(double amountCrypto, String currencyCrypto) {
         log.info("Try to create Entries For Transaction " + amountCrypto + " " + currencyCrypto);
-        databaseService.createEntryForAnyTransaction(amountCrypto, currencyCrypto);
+        DatabaseService.createEntryForAnyTransaction(amountCrypto, currencyCrypto);
 
         log.info("Try to create Entries For Unidentified Transaction " + amountCrypto + " " + currencyCrypto);
-        databaseService.createEntryForUnidentifiedTransaction(amountCrypto, currencyCrypto);
+        DatabaseService.createEntryForUnidentifiedTransaction(amountCrypto, currencyCrypto);
         log.info("Success created Entries for Unidentified Transaction " + amountCrypto + " " + currencyCrypto);
     }
 
@@ -57,20 +50,34 @@ public class TransactionService {
                 log.info("Exchange difference is positive");
                 throw new IOException("Exchange difference is positive");
             }else{
-                databaseService.createEntryForExchangeIdentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
+                DatabaseService.createEntryForExchangeIdentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
                         receivedCurrencyFiat, receivedAmountFiat); //Обмен по рыночной стоимости
                 log.info("Success created Entries For Exchange " + exchangedAmountCrypto  + " " +  exchangedCurrencyCrypto
                         + " to " + receivedAmountFiat + " " + receivedCurrencyFiat);
 
                 //Разницу между рыночной стоимостью и полученной фиксируем отдельной проводкой
-                databaseService.createEntryForExchangeDifference(exchangeDifference);
+                DatabaseService.createEntryForExchangeDifference(exchangeDifference);
+                log.info("Success created Entries For Exchange Commission " +  String.format("%.3f",-1 * exchangeDifference) +  " USDT");
             }
         }else{
             log.info("Try to create Entries For Exchange Unidentified Transaction");
-            databaseService.createEntryForExchangeUnidentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
+            DatabaseService.createEntryForExchangeUnidentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
                     receivedCurrencyFiat, receivedAmountFiat);
             log.info("Success created Entries For Exchange " + exchangedAmountCrypto  + " " +  exchangedCurrencyCrypto
                     + " to " + receivedAmountFiat + " " + receivedCurrencyFiat);
+        }
+    }
+
+    public String createEntriesForPaymentTransaction(String merchantId, String currencyFiat, double amountFiat) {
+        //проверка на сумму вывода
+        double availablePaymentAmount = databaseService.checkAvailablePaymentAmount(merchantId);
+        if(availablePaymentAmount >= amountFiat){
+            log.info("Try to create Entries For Payment Transaction");
+            databaseService.createEntryForPaymentTransaction(merchantId, amountFiat);
+            log.info("Success created Entries For Payment Transaction " + amountFiat + " " + currencyFiat + " to merchant " + merchantId);
+            return "Ok";
+        }else{
+            return "Not Enough for requested Payment";
         }
     }
 }

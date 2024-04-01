@@ -1,7 +1,6 @@
 package com.yc_pay.service;
 
 import com.yc_pay.model.Transaction;
-import com.yc_pay.model.TransactionResponse;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
 import jakarta.inject.Singleton;
@@ -14,7 +13,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import static com.yc_pay.model.dbModels.generated.Tables.*;
 
 @Singleton
@@ -26,36 +24,6 @@ public class DatabaseService {
     static String url = environment.getProperty("db.url", String.class).get();
     static String userName = environment.getProperty("db.username", String.class).get();
     static String password = environment.getProperty("db.password", String.class).get();
-
-
-
-    public static ArrayList<TransactionResponse> getTransactionFromUser(String merchantId){
-        ArrayList<TransactionResponse> transactions = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
-            DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
-            Result<Record> result =
-                    create
-                    .select()
-                    .from(TRANSACTION)
-                    .where(TRANSACTION.MERCHANT_ID.eq(merchantId))
-                    .fetch();
-            conn.close();
-
-            for (Record r : result) {
-                TransactionResponse transaction = new TransactionResponse();
-                transaction.setPayment_id(r.getValue(TRANSACTION.PAYMENT_ID));
-                transaction.setCurrency_crypto(r.getValue(TRANSACTION.CURRENCY_CRYPTO));
-                transaction.setAmount_crypto(r.getValue(TRANSACTION.AMOUNT_CRYPTO));
-                transaction.setCurrency_fiat(r.getValue(TRANSACTION.CURRENCY_FIAT));
-                transaction.setPayment_dttm(String.valueOf(r.getValue(TRANSACTION.PAYMENT_DTTM)));
-                transactions.add(transaction);
-            }
-        }
-        catch (Exception e) {
-            log.error("Failed to get transactions" + e.getMessage());
-        }
-        return transactions;
-    }
 
     public static void createEntryForAnyTransaction(double amountCrypto, String currencyCrypto) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
@@ -290,6 +258,67 @@ public class DatabaseService {
             log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
             throw new RuntimeException(ex);
         }
+    }
 
+    public Double checkAvailablePaymentAmount(String merchantId) {
+        double availableAmount = 0.0;
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext checkAvailablePaymentAmount = DSL.using(conn, SQLDialect.POSTGRES);
+            @NotNull Result<Record1<Double>> result =
+                    checkAvailablePaymentAmount
+                            .select(ENTRIES.AMOUNT)
+                            .from(ENTRIES)
+                            .leftJoin(POCKET).on(ENTRIES.POCKET.eq(POCKET.POCKET_))
+                            .where(POCKET.MERCHANT_ID.eq(merchantId))
+                            .fetch();
+            conn.close();
+
+            for (Record r : result) {
+                availableAmount += (r.getValue(ENTRIES.AMOUNT));
+            }
+            return availableAmount;
+        }
+        catch (Exception e) {
+            log.error("Failed to get transactions" + e.getMessage());
+            return null;
+        }
+    }
+
+    public void createEntryForPaymentTransaction(String merchantId, double amountFiat) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext createEntryForExchangeIdentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
+
+            @NotNull Result<Record1<String>> result =
+                    createEntryForExchangeIdentifiedTransaction
+                            .select(POCKET.POCKET_)
+                            .from(POCKET)
+                            .where(POCKET.MERCHANT_ID.eq(merchantId))
+                            .fetch();
+
+            String pocket = result.get(0).getValue(POCKET.POCKET_);
+
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values(pocket, -1 * amountFiat, "USDT", "GOP", LocalDateTime.now())
+                    .execute();
+
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("GOP", amountFiat, "USDT", pocket, LocalDateTime.now())
+                    .execute();
+        } catch (SQLException ex) {
+            log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
+            throw new RuntimeException(ex);
+        }
     }
 }

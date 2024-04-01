@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,15 +21,15 @@ import static com.yc_pay.model.dbModels.generated.Tables.*;
 @Slf4j(topic = "DatabaseService")
 public class DatabaseService {
 
-    ApplicationContext applicationContext = ApplicationContext.run();
-    Environment environment = applicationContext.getEnvironment();
-    String url = environment.getProperty("db.url", String.class).get();
-    String userName = environment.getProperty("db.username", String.class).get();
-    String password = environment.getProperty("db.password", String.class).get();
+    static ApplicationContext applicationContext = ApplicationContext.run();
+    static Environment environment = applicationContext.getEnvironment();
+    static String url = environment.getProperty("db.url", String.class).get();
+    static String userName = environment.getProperty("db.username", String.class).get();
+    static String password = environment.getProperty("db.password", String.class).get();
 
 
 
-    public ArrayList<TransactionResponse> getTransactionFromUser(String merchantId){
+    public static ArrayList<TransactionResponse> getTransactionFromUser(String merchantId){
         ArrayList<TransactionResponse> transactions = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext create = DSL.using(conn, SQLDialect.POSTGRES);
@@ -53,12 +52,12 @@ public class DatabaseService {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to get transactions" + e.getMessage());
         }
         return transactions;
     }
 
-    public void createEntryForAnyTransaction(double amountCrypto, String currencyCrypto) {
+    public static void createEntryForAnyTransaction(double amountCrypto, String currencyCrypto) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext createEntryForAnyTransaction = DSL.using(conn, SQLDialect.POSTGRES);
             createEntryForAnyTransaction
@@ -86,7 +85,7 @@ public class DatabaseService {
         }
     }
 
-    public void createEntryForUnidentifiedTransaction(double amountCrypto, String currencyCrypto) {
+    public static void createEntryForUnidentifiedTransaction(double amountCrypto, String currencyCrypto) {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext createEntryForUnidentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
             createEntryForUnidentifiedTransaction
@@ -115,7 +114,7 @@ public class DatabaseService {
         }
     }
 
-    public void createEntryForIdentifiedTransaction(Transaction transaction) {
+    public static void createEntryForIdentifiedTransaction(Transaction transaction) {
         String pocket = null;
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext createEntryForIdentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
@@ -139,7 +138,7 @@ public class DatabaseService {
                                 ENTRIES.CURRENCY,
                                 ENTRIES.REFERENCE,
                                 ENTRIES.CREATED_DTTM)
-                        .values("W1", -1 * transaction.getPaid_amount_crypto().doubleValue(),
+                        .values("W1", -1 * transaction.getPaid_amount_crypto(),
                                 transaction.getCurrency_crypto(), "W70", LocalDateTime.now())
                         .execute();
 
@@ -150,7 +149,7 @@ public class DatabaseService {
                                 ENTRIES.CURRENCY,
                                 ENTRIES.REFERENCE,
                                 ENTRIES.CREATED_DTTM)
-                        .values("W70", transaction.getPaid_amount_crypto().doubleValue(),
+                        .values("W70", transaction.getPaid_amount_crypto(),
                                 transaction.getCurrency_crypto(), "W1", LocalDateTime.now())
                         .execute();
 
@@ -161,7 +160,7 @@ public class DatabaseService {
                                 ENTRIES.CURRENCY,
                                 ENTRIES.REFERENCE,
                                 ENTRIES.CREATED_DTTM)
-                        .values("W70", -1 * transaction.getAmount_fiat().doubleValue(),
+                        .values("W70", -1 * transaction.getAmount_fiat(),
                                 transaction.getCurrency_fiat(), pocket, LocalDateTime.now())
                         .execute();
 
@@ -172,11 +171,11 @@ public class DatabaseService {
                                 ENTRIES.CURRENCY,
                                 ENTRIES.REFERENCE,
                                 ENTRIES.CREATED_DTTM)
-                        .values(pocket, transaction.getAmount_fiat().doubleValue(),
+                        .values(pocket, transaction.getAmount_fiat(),
                                 transaction.getCurrency_fiat(), "W70", LocalDateTime.now())
                         .execute();
 
-                double overpayment = transaction.getPaid_amount_crypto().doubleValue() - transaction.getRequired_amount_crypto().doubleValue();
+                double overpayment = transaction.getPaid_amount_crypto() - transaction.getRequired_amount_crypto();
 
                 if (overpayment > 0){
                     createEntryForIdentifiedTransaction
@@ -205,5 +204,92 @@ public class DatabaseService {
             log.error("Failed to create an entry for identified transaction" + ex.getMessage());
             throw new RuntimeException(ex);
         }
+    }
+
+    public static void createEntryForExchangeUnidentifiedTransaction(double exchangedAmountCrypto, String exchangedCurrencyCrypto,
+                                                              String receivedCurrencyFiat, double receivedAmountFiat) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext createEntryForExchangeUnidentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
+            createEntryForExchangeUnidentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("GBCP", -1 * exchangedAmountCrypto, exchangedCurrencyCrypto, "GCP", LocalDateTime.now())
+                    .execute();
+
+            createEntryForExchangeUnidentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("GCP", receivedAmountFiat, receivedCurrencyFiat, "GBCP", LocalDateTime.now())
+                    .execute();
+        } catch (SQLException ex) {
+            log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void createEntryForExchangeIdentifiedTransaction(double exchangedAmountCrypto, String exchangedCurrencyCrypto,
+                                                            String receivedCurrencyFiat, double receivedAmountFiat) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext createEntryForExchangeIdentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("W70", -1 * exchangedAmountCrypto, exchangedCurrencyCrypto, "W70", LocalDateTime.now())
+                    .execute();
+
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("W70", receivedAmountFiat, receivedCurrencyFiat, "W70", LocalDateTime.now())
+                    .execute();
+        } catch (SQLException ex) {
+            log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void createEntryForExchangeDifference(double exchangeDifference) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext createEntryForExchangeIdentifiedTransaction = DSL.using(conn, SQLDialect.POSTGRES);
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("W70", -1 * exchangeDifference, "USDT", "GCP", LocalDateTime.now())
+                    .execute();
+
+            createEntryForExchangeIdentifiedTransaction
+                    .insertInto(ENTRIES,
+                            ENTRIES.POCKET,
+                            ENTRIES.AMOUNT,
+                            ENTRIES.CURRENCY,
+                            ENTRIES.REFERENCE,
+                            ENTRIES.CREATED_DTTM)
+                    .values("GCP", exchangeDifference, "USDT", "W70", LocalDateTime.now())
+                    .execute();
+        } catch (SQLException ex) {
+            log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+
     }
 }

@@ -4,8 +4,10 @@ import com.yc_pay.model.Transaction;
 import com.yc_pay.model.TransactionResponse;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import java.math.BigDecimal;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Singleton
 @Slf4j(topic = "TransactionService")
@@ -40,6 +42,36 @@ public class TransactionService {
         log.info("Try to create Entries For Unidentified Transaction " + amountCrypto + " " + currencyCrypto);
         databaseService.createEntryForUnidentifiedTransaction(amountCrypto, currencyCrypto);
         log.info("Success created Entries for Unidentified Transaction " + amountCrypto + " " + currencyCrypto);
+    }
+
+    public void createEntriesForExchangeTransaction(double exchangedAmountCrypto, String exchangedCurrencyCrypto,
+                                                    String receivedCurrencyFiat, double receivedAmountFiat,
+                                                    Integer identificationFlag) throws IOException, InterruptedException {
+        if (identificationFlag == 1) {
+            log.info("Try to create Entries For Exchange Identified Transaction");
+
+            double marketPrice = Double.parseDouble(Objects.requireNonNull(CheckExchangeDiffService.getMarketPriceCrypto(exchangedCurrencyCrypto)));
+            double exchangeDifference = receivedAmountFiat - exchangedAmountCrypto * marketPrice;
+
+            if(exchangeDifference > 0){
+                log.info("Exchange difference is positive");
+                throw new IOException("Exchange difference is positive");
+            }else{
+                databaseService.createEntryForExchangeIdentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
+                        receivedCurrencyFiat, receivedAmountFiat); //Обмен по рыночной стоимости
+                log.info("Success created Entries For Exchange " + exchangedAmountCrypto  + " " +  exchangedCurrencyCrypto
+                        + " to " + receivedAmountFiat + " " + receivedCurrencyFiat);
+
+                //Разницу между рыночной стоимостью и полученной фиксируем отдельной проводкой
+                databaseService.createEntryForExchangeDifference(exchangeDifference);
+            }
+        }else{
+            log.info("Try to create Entries For Exchange Unidentified Transaction");
+            databaseService.createEntryForExchangeUnidentifiedTransaction(exchangedAmountCrypto, exchangedCurrencyCrypto,
+                    receivedCurrencyFiat, receivedAmountFiat);
+            log.info("Success created Entries For Exchange " + exchangedAmountCrypto  + " " +  exchangedCurrencyCrypto
+                    + " to " + receivedAmountFiat + " " + receivedCurrencyFiat);
+        }
     }
 }
 

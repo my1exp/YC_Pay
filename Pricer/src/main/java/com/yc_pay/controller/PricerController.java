@@ -7,8 +7,10 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@Slf4j
 public class PricerController {
 
     private final PricerService pricerService;
@@ -18,11 +20,21 @@ public class PricerController {
     }
 
     @Get(uri = "/price", produces = MediaType.APPLICATION_JSON)
-    public HttpResponse<PricerResponse> getAllCurrencies(@Header String currencyCrypto,
-                                                         @Header float amountFiat,
-                                                         @Header String currencyFiat) {
+    public HttpResponse<PricerResponse> getAmountCrypto(@Header String currencyCrypto,
+                                                        @Header float amountFiat,
+                                                        @Header String currencyFiat) {
         try {
             return HttpResponse.ok(pricerService.getAmountCrypto(currencyCrypto, amountFiat, currencyFiat));
+        } catch (Exception e) {
+            return HttpResponse.notFound();
+        }
+    }
+
+    @Get(uri = "/getMarketPriceCrypto", produces = MediaType.APPLICATION_JSON)
+    public HttpResponse<Double> getMarketPriceCrypto(@Header String currency_crypto) {
+        try {
+            System.out.println(pricerService.getMarketPriceCrypto(currency_crypto));
+            return HttpResponse.ok(pricerService.getMarketPriceCrypto(currency_crypto));
         } catch (Exception e) {
             return HttpResponse.notFound();
         }

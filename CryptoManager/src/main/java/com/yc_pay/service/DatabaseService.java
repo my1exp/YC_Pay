@@ -5,6 +5,7 @@ import com.yc_pay.model.PaymentExists;
 import com.yc_pay.model.RequestAndSession;
 import com.yc_pay.model.TransactionToTxService;
 import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
@@ -23,6 +24,7 @@ import static com.yc_pay.model.dbModels.generated.Tables.*;
 import static org.jooq.impl.DSL.*;
 
 @Singleton
+@Slf4j
 public class DatabaseService {
 
     public static String userName = "postgres";
@@ -52,7 +54,7 @@ public class DatabaseService {
             return wallet_id;
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return wallet_id;
         }
     }
@@ -76,10 +78,8 @@ public class DatabaseService {
         }
     }
 
-    public static List<Integer> getWalletAndTag(String currency, String network, float amountCrypto) {
-
+    public static List<Integer> getWalletAndTag(String currency, String network) {
         List<Integer> walletTag = new ArrayList<>();
-
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext dslContext = DSL.using(conn, SQLDialect.POSTGRES);
             @NotNull Result<Record1<Integer>> maxIdResult = dslContext
@@ -121,7 +121,7 @@ public class DatabaseService {
             }
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
         return wallet;
@@ -143,7 +143,7 @@ public class DatabaseService {
             }
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
         return pk;
@@ -387,7 +387,7 @@ public class DatabaseService {
             }
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -425,7 +425,7 @@ public class DatabaseService {
 
             System.out.println(result);
 
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 for (Record r : result) {
                     Integer paymentId = r.getValue(CRYPTO_PAYMENTS.ID);
                     paymentsListToReturn.add(paymentId);

@@ -1,10 +1,13 @@
 package com.yc_pay.conroller;
 
+import com.yc_pay.model.Entry;
 import com.yc_pay.model.Transaction;
 import com.yc_pay.service.TransactionService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
 
 @Controller()
 @Slf4j(topic = "TransactionController")
@@ -71,6 +74,51 @@ public class TransactionController {
                 return HttpResponse.ok(result);
             }else{
                 return HttpResponse.badRequest(result);
+            }
+        } catch (Exception e) {
+            return HttpResponse.badRequest();
+        }
+    }
+
+    @Post(uri = "/pocket")
+    public HttpResponse<String> createPocketForMerchant(@Header String merchant_id) {
+
+        try{
+            String result = transactionService.createPocketForMerchant(merchant_id);
+            if (result.equals("Ok")) {
+                return HttpResponse.ok(result);
+            }else{
+                return HttpResponse.badRequest(result);
+            }
+        } catch (Exception e) {
+            return HttpResponse.badRequest();
+        }
+    }
+
+    @Get(uri = "/entry/pocket")
+    public HttpResponse<ArrayList<Entry>> getEntriesForPocket(@Header String pocket) {
+
+        try{
+            ArrayList<Entry> entries = transactionService.getEntriesForPocket(pocket);
+            if (entries!= null) {
+                return HttpResponse.ok(entries);
+            }else{
+                return HttpResponse.badRequest();
+            }
+        } catch (Exception e) {
+            return HttpResponse.badRequest();
+        }
+    }
+
+    @Get(uri = "/entry/merchant_id")
+    public HttpResponse<ArrayList<Entry>> getEntriesForMerchant(@Header String merchant_id) {
+
+        try{
+            ArrayList<Entry> entries = transactionService.getEntriesForMerchant(merchant_id);
+            if (entries!= null) {
+                return HttpResponse.ok(entries);
+            }else{
+                return HttpResponse.badRequest();
             }
         } catch (Exception e) {
             return HttpResponse.badRequest();

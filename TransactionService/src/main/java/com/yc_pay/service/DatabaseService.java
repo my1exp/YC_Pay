@@ -1,5 +1,6 @@
 package com.yc_pay.service;
 
+import com.yc_pay.model.Entry;
 import com.yc_pay.model.Transaction;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
@@ -13,7 +14,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+
 import static com.yc_pay.model.dbModels.generated.Tables.*;
+import static org.jooq.impl.DSL.max;
 
 @Singleton
 @Slf4j(topic = "DatabaseService")
@@ -319,6 +323,111 @@ public class DatabaseService {
         } catch (SQLException ex) {
             log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
             throw new RuntimeException(ex);
+        }
+    }
+
+    public String checkPocketExistsByMerchantId(String merchantId) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext checkPocketExists = DSL.using(conn, SQLDialect.POSTGRES);
+
+            @NotNull Result<Record1<String>> result =
+                    checkPocketExists
+                            .select(POCKET.POCKET_)
+                            .from(POCKET)
+                            .where(POCKET.MERCHANT_ID.eq(merchantId))
+                            .fetch();
+            conn.close();
+
+            if (!result.isEmpty()) {
+                return result.get(0).getValue(POCKET.POCKET_);
+            }else{
+                return null;
+            }
+
+        } catch (Exception ex) {
+            log.error("Failed to check pocket exists" + ex.getMessage());
+            return null;
+        }
+    }
+
+    public void createPocketForMerchant(String merchantId) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext createPocketForMerchant = DSL.using(conn, SQLDialect.POSTGRES);
+
+            @NotNull Result<Record1<Integer>> result =
+                    createPocketForMerchant
+                            .select(max(POCKET.ID).as(POCKET.ID))
+                            .from(POCKET)
+                            .fetch();
+
+            String newPocket = "W" + (result.get(0).getValue(POCKET.ID) + 500);
+
+            createPocketForMerchant
+                    .insertInto(POCKET,
+                            POCKET.POCKET_,
+                            POCKET.MERCHANT_ID)
+                    .values(newPocket, merchantId)
+                    .execute();
+
+        } catch (SQLException ex) {
+            log.error("Failed to create an entry for unidentified transaction" + ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public ArrayList<Entry> getEntriesForPocket(String pocket) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext checkPocketExistsByPocket = DSL.using(conn, SQLDialect.POSTGRES);
+            @NotNull Result<Record5<String, Double, String, String, LocalDateTime>> result =
+                    checkPocketExistsByPocket
+                            .select(ENTRIES.POCKET,
+                                    ENTRIES.AMOUNT,
+                                    ENTRIES.CURRENCY,
+                                    ENTRIES.REFERENCE,
+                                    ENTRIES.CREATED_DTTM)
+                            .from(ENTRIES)
+                            .where(ENTRIES.POCKET.eq(pocket))
+                            .fetch();
+            conn.close();
+
+            if (!result.isEmpty()) {
+                for (Record r : result) {
+                    Entry entry = new Entry(r.getValue(ENTRIES.POCKET), r.getValue(ENTRIES.AMOUNT),
+                            r.getValue(ENTRIES.CURRENCY), r.getValue(ENTRIES.REFERENCE),
+                            String.valueOf(r.getValue(ENTRIES.CREATED_DTTM)));
+                    entries.add(entry);
+                }
+            }
+            return entries;
+
+        } catch (Exception ex) {
+            log.error("Failed to check pocket exists" + ex.getMessage());
+            return null;
+        }
+    }
+
+    public Boolean checkPocketExistsByPocket(String pocket) {
+        try (Connection conn = DriverManager.getConnection(url, userName, password)) {
+            DSLContext checkPocketExistsByPocket = DSL.using(conn, SQLDialect.POSTGRES);
+
+            @NotNull Result<Record1<String>> result =
+                    checkPocketExistsByPocket
+                            .select(POCKET.POCKET_)
+                            .from(POCKET)
+                            .where(POCKET.POCKET_.eq(pocket))
+                            .fetch();
+            conn.close();
+
+            if (result.isEmpty()) {
+                return false;
+            }else{
+                return true;
+            }
+
+        } catch (Exception ex) {
+            log.error("Failed to check pocket exists" + ex.getMessage());
+            return false;
         }
     }
 }

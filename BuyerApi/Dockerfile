@@ -12,7 +12,7 @@
 FROM eclipse-temurin:17-jdk-jammy as deps
 
 WORKDIR /build
-
+#
 # Copy the mvnw wrapper with executable permissions.
 COPY --chmod=0755 ./BuyerApi/mvnw mvnw
 COPY ./BuyerApi/.mvn/ .mvn/

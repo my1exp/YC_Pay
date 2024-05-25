@@ -14,8 +14,8 @@ FROM eclipse-temurin:17-jdk-jammy as deps
 WORKDIR /build
 
 # Copy the mvnw wrapper with executable permissions.
-COPY --chmod=0755 mvnw mvnw
-COPY .mvn/ .mvn/
+COPY --chmod=0755 BuyerApi/mvnw mvnw
+COPY BuyerApi/.mvn .mvn/
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
@@ -35,7 +35,7 @@ FROM deps as package
 
 WORKDIR /build
 
-COPY ./src src/
+COPY BuyerApi/src src/
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \
     ./mvnw package -DskipTests && \

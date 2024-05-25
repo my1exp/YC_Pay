@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  build-container:
+  PaymentApi:
     runs-on: ubuntu-latest
     steps:
     -
@@ -27,6 +27,27 @@ jobs:
       name: Push Image to Docker Hub
       run:
         docker push immoltex/payment_api:latest
+
+  Pricer:
+    runs-on: ubuntu-latest
+    steps:
+    -
+      uses: actions/checkout@v4
+    -
+      name: Build PaymentApi image
+      working-directory: Pricer
+      run:
+        docker build . --file Dockerfile --tag immoltex/pricer:latest
+    -
+      name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - 
+      name: Push Image to Docker Hub
+      run:
+        docker push immoltex/pricer:latest
     
     
     # - name: Checkout PaymentApi 

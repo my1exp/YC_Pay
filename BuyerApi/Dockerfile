@@ -77,6 +77,7 @@
 #ENTRYPOINT [ "java", "-jar", "app.jar" ]
 
 FROM eclipse-temurin:17-jdk-jammy
-COPY ./BuyerApi/target/BuyerApi-0.1.jar BuyerApi-0.1.jar
+WORKDIR /BuyerApi
+COPY ./BuyerApi /BuyerApi
 EXPOSE 8080
-CMD ["java", "-jar", "/BuyerApi-0.1.jar"]
+CMD ["java", "-jar", "./target/BuyerApi-0.1.jar"]

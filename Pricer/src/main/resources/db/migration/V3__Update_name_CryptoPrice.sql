@@ -1,0 +1,1 @@
+update cryptoprice set name = 'XRP' where name = 'Ripple';

@@ -122,9 +122,9 @@
         <artifactId>flyway-maven-plugin</artifactId>
         <version>9.22.2</version>
         <configuration>
-          <url>jdbc:postgresql://localhost:5432/Pricer</url>
-          <user>postgres</user>
-          <password>1234</password>
+          <url>jdbc:postgresql://94.241.138.81:5432/Pricer</url>
+          <user>gen_user</user>
+          <password>*@@N*PHZ0kFkyE</password>
         </configuration>
       </plugin>
       <plugin>
@@ -133,9 +133,9 @@
         <version>3.18.6</version>
         <executions>
           <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
+<!--            <goals>-->
+<!--              <goal>generate</goal>-->
+<!--            </goals>-->
           </execution>
         </executions>
         <dependencies>
@@ -148,22 +148,22 @@
         <configuration>
           <jdbc>
             <driver>org.postgresql.Driver</driver>
-            <url>jdbc:postgresql:Pricer</url>
-            <user>postgres</user>
-            <password>1234</password>
+            <url>jdbc:postgresql://94.241.138.81:5432/Pricer</url>
+            <user>gen_user</user>
+            <password>*@@N*PHZ0kFkyE</password>
           </jdbc>
-          <generator>
-            <database>
-              <name>org.jooq.meta.postgres.PostgresDatabase</name>
-              <includes>.*</includes>
-              <excludes>flyway_schema_history</excludes>
-              <inputSchema>public</inputSchema>
-            </database>
-            <target>
-              <packageName>com.yc_pay.model.dbModels.generated</packageName>
-              <directory>C:\Users\Nikita\Documents\GitHub\YC_Pay\Pricer\src\main\java</directory>
-            </target>
-          </generator>
+<!--          <generator>-->
+<!--            <database>-->
+<!--              <name>org.jooq.meta.postgres.PostgresDatabase</name>-->
+<!--              <includes>.*</includes>-->
+<!--              <excludes>flyway_schema_history</excludes>-->
+<!--              <inputSchema>public</inputSchema>-->
+<!--            </database>-->
+<!--            <target>-->
+<!--              <packageName>com.yc_pay.model.dbModels.generated</packageName>-->
+<!--              <directory>C:\Users\Nikita\Documents\GitHub\YC_Pay\Pricer\src\main\java</directory>-->
+<!--            </target>-->
+<!--          </generator>-->
         </configuration>
       </plugin>
 

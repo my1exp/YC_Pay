@@ -57,7 +57,6 @@ public class DatabaseService {
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
                 DSLContext dslContext = DSL.using(conn, SQLDialect.POSTGRES);
             for (CryptoCurrency cryptoCurrency : cryptoCurrencies) {
-
                 dslContext
                         .update(CRYPTOPRICE)
                         .set(row(CRYPTOPRICE.PRICE, CRYPTOPRICE.UPDATE_DTTM),

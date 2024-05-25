@@ -4,6 +4,8 @@ import com.yc_pay.model.DetailsForSendXrp;
 import com.yc_pay.model.PaymentExists;
 import com.yc_pay.model.RequestAndSession;
 import com.yc_pay.model.TransactionToTxService;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.env.Environment;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -27,9 +29,11 @@ import static org.jooq.impl.DSL.*;
 @Slf4j
 public class DatabaseService {
 
-    public static String userName = "postgres";
-    public static String password = "1234";
-    public static String url = "jdbc:postgresql://localhost:5432/CryptoManager";
+    static ApplicationContext applicationContext = ApplicationContext.run();
+    static Environment environment = applicationContext.getEnvironment();
+    static String url = environment.getProperty("db.url", String.class).get();
+    static String userName = environment.getProperty("db.username", String.class).get();
+    static String password = environment.getProperty("db.password", String.class).get();
 
 
     public static Integer saveXrpHotWallet(String currency, String network, String privateKey, String address) {
@@ -80,6 +84,8 @@ public class DatabaseService {
 
     public static List<Integer> getWalletAndTag(String currency, String network) {
         List<Integer> walletTag = new ArrayList<>();
+        int maxWalletId;
+        int countMaxWalletId;
         try (Connection conn = DriverManager.getConnection(url, userName, password)) {
             DSLContext dslContext = DSL.using(conn, SQLDialect.POSTGRES);
             @NotNull Result<Record1<Integer>> maxIdResult = dslContext
@@ -88,7 +94,14 @@ public class DatabaseService {
                     .where(CRYPTO_WALLETS.CURRENCY_CRYPTO.eq(currency),
                             CRYPTO_WALLETS.NETWORK.eq(network))
                     .fetch();
-            int maxWalletId = Integer.parseInt(maxIdResult.get(0).getValue("max").toString());
+
+            System.out.println("maxIdResult: " + maxIdResult + " " + maxIdResult.get(0) + " " + maxIdResult.get(0).getValue("max"));
+
+            if (maxIdResult.get(0).getValue("max") != null) {
+                maxWalletId = Integer.parseInt(maxIdResult.get(0).getValue("max").toString());
+            }else{
+                maxWalletId = 0;
+            }
 
             @NotNull Result<Record1<Integer>> countRowsResult = dslContext
                     .select(count(CRYPTO_PAYMENTS.ID))
@@ -96,7 +109,13 @@ public class DatabaseService {
                     .where(CRYPTO_PAYMENTS.CRYPTO_WALLET_ID.eq(maxWalletId))
                     .fetch();
             conn.close();
-            int countMaxWalletId = 100000 + Integer.parseInt(countRowsResult.get(0).getValue("count").toString());
+
+            System.out.println(countRowsResult);
+            if (countRowsResult.get(0).getValue("count") != null) {
+                countMaxWalletId = 100000 + Integer.parseInt(countRowsResult.get(0).getValue("count").toString());
+            }else{
+                countMaxWalletId = 100000;
+            }
 
             walletTag.add(maxWalletId);
             walletTag.add(countMaxWalletId);
@@ -380,8 +399,6 @@ public class DatabaseService {
                                 r.getValue(TRANSACTIONS_HASH.HASH));
                         unidentifiedTransactions.add(transactionToTxService);
                     }
-                    System.out.println(unidentifiedTransactions);
-
                 }
                 return unidentifiedTransactions;
             }
@@ -422,8 +439,6 @@ public class DatabaseService {
                             )
                             .fetch();
             conn.close();
-
-            System.out.println(result);
 
             if (!result.isEmpty()) {
                 for (Record r : result) {

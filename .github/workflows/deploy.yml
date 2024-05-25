@@ -20,6 +20,7 @@ jobs:
       with:
         image: immoltext/payment_api
         registry: docker.io
+        dockerfile: BuyerApi/Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 

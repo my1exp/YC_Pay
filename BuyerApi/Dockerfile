@@ -79,5 +79,5 @@
 FROM eclipse-temurin:17-jdk-jammy
 COPY . /buyerApi/
 WORKDIR /buyerApi/
-RUN javac Application.java
+RUN javac BuyerApi/src/main/java/com/yc_pay/Application.java
 CMD ["java", "Application"]

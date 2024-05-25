@@ -28,7 +28,7 @@ jobs:
       name: Build and push
       uses: docker/build-push-action@v5
       with:
-        context: ./BuyerApi
+        context: .
         push: true
         tags: immoltex/payment_api:latest
     

@@ -24,7 +24,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Build the Docker image of Pricer
-      run: docker build --file Dockerfile --t payment_api:lastest .
+      run: docker build . --file Dockerfile 
     
     - name: Push the Docker image of Pricer
       run: docker push immoltex/payment_api

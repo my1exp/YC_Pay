@@ -1,0 +1,30 @@
+name: deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+
+  build_and_push_to_docker_hub_payment_api:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout PaymentApi 
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          BuyerApi
+    - name: Build the Docker image of Pricer
+      run: docker build . --file Dockerfile --immoltex/payment_api:latest
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to Docker
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: immoltex/payment_api

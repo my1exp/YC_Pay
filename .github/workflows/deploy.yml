@@ -11,14 +11,14 @@ jobs:
     steps:
     - name: Checkout PaymentApi 
       uses: actions/checkout@v4
-      with:
-        sparse-checkout: |
-          BuyerApi
+      # with:
+      #   sparse-checkout: |
+      #     BuyerApi
     
     - name: Build and push PaymentApi
       uses: mr-smithers-excellent/docker-build-push@v6
       with:
-        image: immoltext/payment_api
+        image: immoltex/payment_api
         registry: docker.io
         dockerfile: BuyerApi/Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}

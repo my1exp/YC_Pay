@@ -13,7 +13,7 @@ public class TransactionDeliveryService {
     public static void deliveryUnidentifiedTransaction(double paid_amount_crypto, String currency_crypto)
             throws IOException, InterruptedException {
 
-        URI uri = URI.create("http://localhost:9090/transaction/unidentified");
+        URI uri = URI.create("http://tx_service:9090/transaction/unidentified");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("{")
@@ -42,7 +42,7 @@ public class TransactionDeliveryService {
                                                      double required_amount_crypto, double amount_fiat)
             throws IOException, InterruptedException {
 
-        URI uri = URI.create("http://localhost:9090/transaction/identified");
+        URI uri = URI.create("http://tx_service:9090/transaction/identified");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("{").append("\"merchant_id\":").append(merchant_id).append(",")

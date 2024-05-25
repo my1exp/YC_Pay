@@ -4,7 +4,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.client.annotation.Client;
 
-@Client("http://localhost:8083")
+@Client("http://pricer:8083")
 public interface PricerClient {
     @Get(value = "/price")
     PricerResponse getPriceToBuyer(@Header String currencyCrypto,

@@ -142,10 +142,10 @@ public class CheckPaymentJob extends Thread {
                         DatabaseService.updateDeliveredFlag(paymentId, 0);
                     }
                     log.info("checkPaymentJob executed");
-                    Thread.sleep(1000 * 60 * 2); // 2 minutes
+                    Thread.sleep(1000 * 60 * 1); // 1 minute)
                 }
                 log.info("checkPaymentJob executed");
-                Thread.sleep(1000 * 60 * 2); // 2 minutes
+                Thread.sleep(1000 * 60 * 1); // 1 minutes
             } catch (SQLException e) {
                 log.error(e.getMessage());
             } catch (InterruptedException | IOException e) {

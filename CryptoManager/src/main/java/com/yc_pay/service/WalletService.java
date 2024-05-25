@@ -18,11 +18,11 @@ public class WalletService {
     public WalletResponse getWalletToBuyer(Intent intent) {
         if(intent.getCurrency().equals("XRP") && intent.getNetwork().equals("NATIVE")){
             List<Integer> walletAndTag = DatabaseService.getWalletAndTag(intent.getCurrency(), intent.getNetwork());
-            if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 100005){
+            if(walletAndTag.get(0) == 0 || walletAndTag.get(1) >= 100050){
                 int walletId = createWallet(intent.getNetwork(), intent.getCurrency());
-                savePaymentFromBuyer(walletId, intent.getAmountCrypto(),100000, intent.getRequest_id(),
+                savePaymentFromBuyer(walletId, intent.getAmountCrypto(), walletAndTag.get(1), intent.getRequest_id(),
                         intent.getSession_id(), intent.getMerchant_id(), intent.getAmountFiat());
-                return new WalletResponse(walletId, getWalletAddressWithId(walletId),0);
+                return new WalletResponse(walletId, getWalletAddressWithId(walletId), walletAndTag.get(1));
             }else{
                 savePaymentFromBuyer(walletAndTag.get(0), intent.getAmountCrypto(), walletAndTag.get(1),
                         intent.getRequest_id(), intent.getSession_id(), intent.getMerchant_id(), intent.getAmountFiat());

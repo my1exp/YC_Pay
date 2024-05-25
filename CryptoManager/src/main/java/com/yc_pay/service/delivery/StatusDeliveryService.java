@@ -12,7 +12,7 @@ public class StatusDeliveryService {
 
     public static String statusDelivery(String requestId, String sessionId) throws IOException, InterruptedException {
 
-        URI uri = URI.create("http://localhost:8080/update_intent");
+        URI uri = URI.create("http://payment_api:8080/update_intent");
         String requestBody = "{ \"key\": \"value\" }";
 
         HttpRequest request = HttpRequest.newBuilder()

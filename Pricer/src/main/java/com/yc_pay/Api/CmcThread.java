@@ -1,6 +1,7 @@
 package com.yc_pay.Api;
 
 import com.yc_pay.service.DatabaseService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.yc_pay.Api.CmcApi.makeAPICall;
 
+@Slf4j(topic = "CmcThread")
 public class CmcThread extends Thread{
     public void run() {
 
@@ -39,10 +41,12 @@ public class CmcThread extends Thread{
                             .getJSONObject("USD").getBigDecimal("price");
                     CryptoCurrency cryptoCurrency = new CryptoCurrency(name, price, localDateTime);
                     cryptoCurrencies.add(cryptoCurrency);
+                    log.info(cryptoCurrency.toString());
                 }
 
                 DatabaseService.updatePrices(cryptoCurrencies);
                 Thread.sleep(1000 * 60 * 5);
+                log.info("Prices updated");
             } catch (IOException e) {
                 System.out.println("Error: cannot access content - " + e);
             } catch (URISyntaxException e) {

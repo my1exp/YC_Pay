@@ -11,7 +11,7 @@ public class CheckExchangeDiffService {
     public static String getMarketPriceCrypto(String currency_crypto)
             throws IOException, InterruptedException {
 
-        URI uri = URI.create("http://localhost:8083/getMarketPriceCrypto");
+        URI uri = URI.create("http://pricer:8083/getMarketPriceCrypto");
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)

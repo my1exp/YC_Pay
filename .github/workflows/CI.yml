@@ -48,38 +48,24 @@ jobs:
       name: Push Image to Docker Hub
       run:
         docker push immoltex/pricer:latest
-    
-    
-    # - name: Checkout PaymentApi 
-    #   uses: actions/checkout@v4
-    #   with:
-    #     sparse-checkout: |
-    #       BuyerApi
-    
-    # - name: Build and push PaymentApi
-    #   uses: mr-smithers-excellent/docker-build-push@v6
-    #   with:
-    #     image: immoltex/payment_api
-    #     registry: docker.io
-    #     dockerfile: BuyerApi/Dockerfile
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-      
-    # - name: Login to Docker
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-        
-    # - name: Build the Docker image of Pricer
-    #   run: docker build . --file Dockerfile 
-    
-    # - name: Push the Docker image of Pricer
-    #   run: docker push immoltex/payment_api
 
-
-    # - name: Push to Docker Hub
-    #   uses: docker/build-push-action@v2
-    #   with:
-    #     push: true
-    #     tags: immoltex/payment_api
+  TransactionService:
+    runs-on: ubuntu-latest
+    steps:
+    -
+      uses: actions/checkout@v4
+    -
+      name: Build PaymentApi image
+      working-directory: TransactionService
+      run:
+        docker build . --file Dockerfile --tag immoltex/tx_service:latest
+    -
+      name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - 
+      name: Push Image to Docker Hub
+      run:
+        docker push immoltex/tx_service:latest

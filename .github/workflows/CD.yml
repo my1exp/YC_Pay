@@ -29,9 +29,9 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: sudo git clone --depth 1  --branch master https://github.com/my1exp/YC_Pay
-
-  Move_to_new_folder:
-      name: Move to new git folder
+  
+  Docker_compose_up:
+      name: Deploy and start app
       needs: Clone_new_git
       runs-on: ubuntu-latest
       steps:
@@ -42,21 +42,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: sudo sh -c "cd YC_Pay"
-  
-  Docker_compose_up:
-      name: Deploy and start app
-      needs: Move_to_new_folder
-      runs-on: ubuntu-latest
-      steps:
-      - name: Connect to remote server and deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
           script: |
+            sudo sh -c "cd YC_Pay"
             sudo docker compose down
             sudo docker pull immoltex/crypto_manager:latest
             sudo docker pull immoltex/payment_api:latest

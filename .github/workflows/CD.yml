@@ -17,7 +17,7 @@ jobs:
         script: |
           sudo rm -R YC_Pay
           sudo git clone --depth 1  --branch master https://github.com/my1exp/YC_Pay
-          sudo sh -c "cd somedirectory"
+          sudo sh -c "cd YC_Pay"
           sudo docker compose down
           sudo docker pull immoltex/crypto_manager:latest
           sudo docker pull immoltex/payment_api:latest

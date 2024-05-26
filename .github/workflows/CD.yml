@@ -1,0 +1,26 @@
+name: deploy
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy the app
+    runs-on: ubuntu-latest
+    steps:
+    - name: Connect to remote server and deploy
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          sudo rm -R YC_Pay
+          sudo git clone --depth 1  --branch master https://github.com/my1exp/YC_Pay
+          sudo cd YC_Pay
+          sudo docker compose down
+          sudo docker pull immoltex/crypto_manager:latest
+          sudo docker pull immoltex/payment_api:latest
+          sudo docker pull immoltex/tx_service:latest
+          sudo docker pull immoltex/pricer:latest
+          sudo docker compose up -d

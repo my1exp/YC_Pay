@@ -18,7 +18,7 @@ public class CurrenciesController {
         this.currencyService = currencyService;
     }
 
-    @Get(uri = "/Supported_currencies"
+    @Get(uri = "/supported_currencies"
             , produces = MediaType.APPLICATION_JSON)
     public HttpResponse<List<CurrencyCrypto>> getAllCurrencies (){
         try {

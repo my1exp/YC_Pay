@@ -45,8 +45,8 @@ jobs:
           script: |
             cd YC_Pay/
             sudo docker compose down
-            sudo docker pull immoltex/crypto_manager:latest
-            sudo docker pull immoltex/payment_api:latest
-            sudo docker pull immoltex/tx_service:latest
-            sudo docker pull immoltex/pricer:latest
+            sudo docker pull dockerhub.timeweb.cloud/library/immoltex/crypto_manager:latest
+            sudo docker pull dockerhub.timeweb.cloud/library/immoltex/payment_api:latest
+            sudo docker pull dockerhub.timeweb.cloud/library/immoltex/tx_service:latest
+            sudo docker pull dockerhub.timeweb.cloud/library/immoltex/pricer:latest
             sudo docker compose up -d
